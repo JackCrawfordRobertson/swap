@@ -11,6 +11,7 @@ import VenueForm from "./VenueForm";
 import UserPosts from "./UserPosts";
 import { signInWithGoogle, logout } from '../../utils/auth';
 import { AuthContext } from '../../context/AuthContext';
+import Link from 'next/link';
 
 const swapLogo = "/Swap.svg";
 const iceLogo = "/ICELogo.svg";
@@ -78,7 +79,9 @@ export default function NavigationBar() {
                 <Toolbar sx={{ justifyContent: "space-between" }}>
                     {isMobile ? (
                         <>
-                            <img src={swapLogo} alt="Swap Logo" width="80" height="80" style={{ margin: '0' }} />
+                            <Link href="/" passHref>
+                                <img src={swapLogo} alt="Swap Logo" width="80" height="80" style={{ margin: '0', cursor: 'pointer' }} />
+                            </Link>
                             <IconButton edge="end" aria-label="menu" onClick={handleMenuOpen} sx={{ color: 'black' }}>
                                 <MenuIcon />
                             </IconButton>
@@ -86,11 +89,15 @@ export default function NavigationBar() {
                     ) : (
                         <>
                             <NavContainer>
-                                <img src={swapLogo} alt="Swap Logo" width="80" height="80" style={{ margin: '0' }} />
+                                <Link href="/" passHref>
+                                    <img src={swapLogo} alt="Swap Logo" width="80" height="80" style={{ margin: '0', cursor: 'pointer' }} />
+                                </Link>
                                 <Typography variant="h6" component="div" sx={{ color: "gray", mx: 0 }}>
                                     |
                                 </Typography>
-                                <img src={iceLogo} alt="Ice Logo" width="80" height="80" style={{ margin: '0' }} />
+                                <Link href="/" passHref>
+                                    <img src={iceLogo} alt="Ice Logo" width="80" height="80" style={{ margin: '0', cursor: 'pointer' }} />
+                                </Link>
                             </NavContainer>
                             <Box>
                                 {user ? (
@@ -98,11 +105,11 @@ export default function NavigationBar() {
                                         <StyledButton variant="outlined" startIcon={<PersonIcon style={{ color: "gray" }} />} onClick={logout} sx={{ marginRight: 2 }}>
                                             Logout
                                         </StyledButton>
-                                        <StyledButton variant="contained" startIcon={<HomeIcon style={{ color: "white" }} />} sx={{ backgroundColor: "#5fa7d9", color: "#fff" }} onClick={handleOpen}>
-                                            List a Venue
-                                        </StyledButton>
-                                        <StyledButton variant="outlined" startIcon={<HomeIcon style={{ color: "gray" }} />} onClick={handlePostsOpen} sx={{ marginLeft: 2 }}>
+                                        <StyledButton variant="outlined" startIcon={<HomeIcon style={{ color: "gray" }} />} onClick={handlePostsOpen} >
                                             My Posts
+                                        </StyledButton>
+                                        <StyledButton variant="contained" startIcon={<HomeIcon style={{ color: "white" }} />} sx={{ backgroundColor: "#5fa7d9", color: "#fff", marginLeft: 2 }} onClick={handleOpen}>
+                                            List a Venue
                                         </StyledButton>
                                     </>
                                 ) : (

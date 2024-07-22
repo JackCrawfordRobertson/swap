@@ -1,29 +1,44 @@
 // src/app/components/CategorySelect.js
-import React, { useState } from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem, TextField, InputAdornment, Button } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, FormControl, InputLabel, TextField, InputAdornment, Button, MenuItem, Select } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
 import PlaceIcon from '@mui/icons-material/Place';
 import SearchIcon from '@mui/icons-material/Search';
 import { useMediaQuery, useTheme } from '@mui/material';
+import { useRouter } from 'next/router';
 
-export default function CategorySelect({ category, handleCategoryChange }) {
+export default function CategorySelect({ category, handleCategoryChange, venues }) {
   const [eventType, setEventType] = useState('');
   const [guests, setGuests] = useState('');
   const [location, setLocation] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const router = useRouter();
+
+  const locations = Array.from(new Set(venues.map(venue => venue.location)));
+  const guestRange = Array.from(new Set(venues.map(venue => venue.capacity))).sort((a, b) => a - b);
 
   const handleEventTypeChange = (event) => {
     setEventType(event.target.value);
   };
 
   const handleGuestsChange = (event) => {
-    setGuests(event.target.value);
+    const value = event.target.value;
+    if (value === '' || /^\d*$/.test(value)) {
+      setGuests(value);
+    }
   };
 
   const handleLocationChange = (event) => {
     setLocation(event.target.value);
+  };
+
+  const handleSearch = () => {
+    router.push({
+      pathname: '/results',
+      query: { eventType, guests, location }
+    });
   };
 
   return (
@@ -43,14 +58,13 @@ export default function CategorySelect({ category, handleCategoryChange }) {
       }}
     >
       <FormControl variant="outlined" sx={{ flex: 1 }}>
-        <InputLabel>Event Type</InputLabel>
         <TextField
           value={eventType}
           onChange={handleEventTypeChange}
           label="Event Type"
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start" sx={{ marginRight: '8px' }}>
+              <InputAdornment position="start">
                 <EventIcon style={{ color: 'gray' }} />
               </InputAdornment>
             ),
@@ -61,14 +75,13 @@ export default function CategorySelect({ category, handleCategoryChange }) {
       </FormControl>
 
       <FormControl variant="outlined" sx={{ flex: 1 }}>
-        <InputLabel>Guests</InputLabel>
         <TextField
           value={guests}
           onChange={handleGuestsChange}
           label="Number of Guests"
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start" sx={{ marginRight: '8px' }}>
+              <InputAdornment position="start">
                 <PeopleIcon style={{ color: 'gray' }} />
               </InputAdornment>
             ),
@@ -85,22 +98,23 @@ export default function CategorySelect({ category, handleCategoryChange }) {
           onChange={handleLocationChange}
           label="Location"
           startAdornment={
-            <InputAdornment position="start" sx={{ marginRight: '8px' }}>
+            <InputAdornment position="start">
               <PlaceIcon style={{ color: 'gray' }} />
             </InputAdornment>
           }
           sx={{ color: 'black' }}
         >
-          <MenuItem value="location1">Location 1</MenuItem>
-          <MenuItem value="location2">Location 2</MenuItem>
-          <MenuItem value="location3">Location 3</MenuItem>
+          {locations.map((loc, index) => (
+            <MenuItem key={index} value={loc}>{loc}</MenuItem>
+          ))}
         </Select>
       </FormControl>
 
       <Button
         variant="contained"
-        sx={{ height: '56px', marginTop: '0px', borderRadius: 3, backgroundColor: '#5fa7d9', color: '#fff' }}
+        sx={{ height: '56px', marginTop: isMobile ? '16px' : '0px', borderRadius: 3, backgroundColor: '#5fa7d9', color: '#fff' }}
         startIcon={<SearchIcon />}
+        onClick={handleSearch}
       >
         Search
       </Button>

@@ -1,8 +1,16 @@
 // src/utils/firestore.js
 import { db, storage } from '../config/firebaseConfig';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+// Function to get all venues
+export const getVenues = async () => {
+  const querySnapshot = await getDocs(collection(db, 'venues'));
+  const venues = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  return venues;
+};
+
+// Function to add a new venue
 export const addVenue = async (venue) => {
   try {
     const docRef = await addDoc(collection(db, 'venues'), venue);
@@ -12,6 +20,17 @@ export const addVenue = async (venue) => {
   }
 };
 
+// Function to update an existing post
+export const updatePost = async (id, updatedData) => {
+  try {
+    const postRef = doc(db, 'venues', id);
+    await updateDoc(postRef, updatedData);
+  } catch (error) {
+    console.error("Error updating document: ", error);
+  }
+};
+
+// Function to upload an image to Firebase Storage
 export const uploadImage = async (file) => {
   try {
     const storageRef = ref(storage, `venues/${file.name}`);
@@ -24,25 +43,11 @@ export const uploadImage = async (file) => {
   }
 };
 
+// Function to get user's posts
 export const getUserPosts = async (userId) => {
-  try {
-    const q = query(collection(db, 'venues'), where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
-    const posts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return posts;
-  } catch (error) {
-    console.error("Error fetching user posts: ", error);
-    throw error;
-  }
-};
-
-export const updatePost = async (postId, updatedData) => {
-  try {
-    const postRef = doc(db, 'venues', postId);
-    await updateDoc(postRef, updatedData);
-    console.log("Document updated with ID: ", postId);
-  } catch (error) {
-    console.error("Error updating document: ", error);
-    throw error;
-  }
+  const querySnapshot = await getDocs(collection(db, 'venues'));
+  const posts = querySnapshot.docs
+    .map(doc => ({ ...doc.data(), id: doc.id }))
+    .filter(post => post.userId === userId);
+  return posts;
 };

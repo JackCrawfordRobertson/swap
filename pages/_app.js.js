@@ -7,6 +7,7 @@ import NavigationBar from '../src/app/components/NavigationBar';
 import '../src/app/styles/globals.css';
 import { AuthProvider } from '../src/context/AuthContext';
 import Script from 'next/script';
+import styles from "../src/app/styles/page.module.css";
 
 const theme = createTheme({
   palette: {
@@ -41,6 +42,9 @@ function MyApp({ Component, pageProps }) {
         async
         defer
       />
+
+<div className={styles.NavigationBar}>
+
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
@@ -48,6 +52,7 @@ function MyApp({ Component, pageProps }) {
           <Component {...pageProps} />
         </AuthProvider>
       </ThemeProvider>
+      </div>
     </>
   );
 }
