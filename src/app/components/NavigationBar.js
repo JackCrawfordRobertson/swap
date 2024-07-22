@@ -1,6 +1,6 @@
 // src/app/components/NavigationBar.js
-import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, Button, Box, Modal, IconButton, Menu, MenuItem } from "@mui/material";
+import React, { useState, useContext } from "react";
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Drawer } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -8,7 +8,9 @@ import { styled } from "@mui/material/styles";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import VenueForm from "./VenueForm";
+import UserPosts from "./UserPosts";
 import { signInWithGoogle, logout } from '../../utils/auth';
+import { AuthContext } from '../../context/AuthContext';
 
 const swapLogo = "/Swap.svg";
 const iceLogo = "/ICELogo.svg";
@@ -36,14 +38,31 @@ const StyledButton = styled(Button)({
     },
 });
 
-export default function NavigationBar({ user }) {
+export default function NavigationBar() {
     const [open, setOpen] = useState(false);
+    const [openPosts, setOpenPosts] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { user } = useContext(AuthContext);
 
-    const handleOpen = () => setOpen(true);
+    const handleOpen = () => {
+        if (user) {
+            setOpen(true);
+        } else {
+            alert('You must be logged in to list a venue.');
+        }
+    };
     const handleClose = () => setOpen(false);
+
+    const handlePostsOpen = () => {
+        if (user) {
+            setOpenPosts(true);
+        } else {
+            alert('You must be logged in to view your posts.');
+        }
+    };
+    const handlePostsClose = () => setOpenPosts(false);
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -75,17 +94,22 @@ export default function NavigationBar({ user }) {
                             </NavContainer>
                             <Box>
                                 {user ? (
-                                    <StyledButton variant="outlined" startIcon={<PersonIcon style={{ color: "gray" }} />} onClick={logout} sx={{ marginRight: 2 }}>
-                                        Logout
-                                    </StyledButton>
+                                    <>
+                                        <StyledButton variant="outlined" startIcon={<PersonIcon style={{ color: "gray" }} />} onClick={logout} sx={{ marginRight: 2 }}>
+                                            Logout
+                                        </StyledButton>
+                                        <StyledButton variant="contained" startIcon={<HomeIcon style={{ color: "white" }} />} sx={{ backgroundColor: "#5fa7d9", color: "#fff" }} onClick={handleOpen}>
+                                            List a Venue
+                                        </StyledButton>
+                                        <StyledButton variant="outlined" startIcon={<HomeIcon style={{ color: "gray" }} />} onClick={handlePostsOpen} sx={{ marginLeft: 2 }}>
+                                            My Posts
+                                        </StyledButton>
+                                    </>
                                 ) : (
                                     <StyledButton variant="outlined" startIcon={<PersonIcon style={{ color: "gray" }} />} onClick={signInWithGoogle} sx={{ marginRight: 2 }}>
                                         Login
                                     </StyledButton>
                                 )}
-                                <StyledButton variant="contained" startIcon={<HomeIcon style={{ color: "white" }} />} sx={{ backgroundColor: "#5fa7d9", color: "#fff" }} onClick={handleOpen}>
-                                    List a Venue
-                                </StyledButton>
                             </Box>
                         </>
                     )}
@@ -93,17 +117,31 @@ export default function NavigationBar({ user }) {
             </StyledAppBar>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 {user ? (
-                    <MenuItem onClick={logout}>Logout</MenuItem>
+                    <>
+                        <MenuItem onClick={logout}>Logout</MenuItem>
+                        <MenuItem onClick={handleOpen}>List a Venue</MenuItem>
+                        <MenuItem onClick={handlePostsOpen}>My Posts</MenuItem>
+                    </>
                 ) : (
                     <MenuItem onClick={signInWithGoogle}>Login</MenuItem>
                 )}
-                <MenuItem onClick={handleOpen}>List a Venue</MenuItem>
             </Menu>
-            <Modal open={open} onClose={handleClose}>
-                <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper", border: "2px solid #000", boxShadow: 24, p: 4 }}>
-                    <VenueForm user={user} />
-                </Box>
-            </Modal>
+            <Drawer
+                anchor="right"
+                open={open}
+                onClose={handleClose}
+                PaperProps={{ sx: { width: '400px' } }} // Adjust width as needed
+            >
+                <VenueForm user={user} open={open} onClose={handleClose} />
+            </Drawer>
+            <Drawer
+                anchor="right"
+                open={openPosts}
+                onClose={handlePostsClose}
+                PaperProps={{ sx: { width: '400px' } }} // Adjust width as needed
+            >
+                <UserPosts user={user} open={openPosts} onClose={handlePostsClose} />
+            </Drawer>
         </>
     );
 }

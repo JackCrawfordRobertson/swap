@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import styles from '../src/app/styles/page.module.css';
 
-import SearchBar from '../src/app/components/SearchBar';
 import CategorySelect from '../src/app/components/CategorySelect';
 import SplitContent from '../src/app/components/SplitContent';
 

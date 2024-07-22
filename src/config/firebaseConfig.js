@@ -1,21 +1,20 @@
-// src/config/firebaseConfig.js
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDGKDKrK84FhXHyR9PRZi07uIrBFoxz9Jo",
-  authDomain: "swap-32989.firebaseapp.com",
-  projectId: "swap-32989",
-  storageBucket: "swap-32989.appspot.com",
-  messagingSenderId: "1048701574427",
-  appId: "1:1048701574427:web:29a7889b3915bdda6b07be",
-  measurementId: "G-07D48XCYPJ"
+  apiKey: "AIzaSyAzKATJJmEDAYnFntmDfAW0tgNPapkA0l8",
+  authDomain: "swapp-7f6f8.firebaseapp.com",
+  projectId: "swapp-7f6f8",
+  storageBucket: "swapp-7f6f8.appspot.com",
+  messagingSenderId: "2516418590",
+  appId: "1:2516418590:web:b08d4029ec2567f23b6e0f",
+  measurementId: "G-H5MWBK70L9"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();

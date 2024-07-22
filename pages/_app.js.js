@@ -5,6 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { auth } from '../src/config/firebaseConfig';
 import NavigationBar from '../src/app/components/NavigationBar';
 import '../src/app/styles/globals.css';
+import { AuthProvider } from '../src/context/AuthContext';
+import Script from 'next/script';
 
 const theme = createTheme({
   palette: {
@@ -12,7 +14,7 @@ const theme = createTheme({
       main: '#5fa7d9',
     },
     secondary: {
-      main: '#ff4081',
+      main: '#ffffff',
     },
   },
 });
@@ -32,11 +34,21 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <NavigationBar user={user} />
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <>
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="beforeInteractive"
+        async
+        defer
+      />
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AuthProvider>
+          <NavigationBar user={user} />
+          <Component {...pageProps} />
+        </AuthProvider>
+      </ThemeProvider>
+    </>
   );
 }
 

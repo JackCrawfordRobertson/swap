@@ -13,9 +13,12 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.16.4",
     "@mui/material": "^5.16.4",
+    "@react-google-maps/api": "^2.19.3",
     "firebase": "^10.12.4",
     "next": "14.2.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-google-autocomplete": "^2.7.3",
+    "react-places-autocomplete": "^7.3.0"
   }
 }
