@@ -1,0 +1,65 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  width: 80%;
+}
+
+.logo {
+  margin-bottom: 20px;
+}
+
+.CategorySelect {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.firebaseContainer {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  justify-content: center; /* Centers children horizontally */
+  align-items: center; /* Centers children vertically */
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto; /* Centers the content container itself */
+}
+
+.rightContent {
+  width: 75%; /* Remaining part of the page */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .content {
+    flex-direction: column;
+  }
+  .quoteContainer, .rightContent {
+    width: 100%;
+  }
+  .searchContainer {
+    width: 100%;
+    flex-direction: column;
+  }
+}
