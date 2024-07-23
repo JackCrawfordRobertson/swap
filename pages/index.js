@@ -4,11 +4,13 @@ import styles from "../src/app/styles/page.module.css";
 import SplitContent from "../src/app/components/SplitContent";
 import CategorySelect from "../src/app/components/CategorySelect";
 import { getVenues } from '../src/utils/firestore';
+import NavigationBar from '../src/app/components/NavigationBar';
 import { AuthContext } from '../src/context/AuthContext';
 
 export default function Home() {
   const [venues, setVenues] = useState([]);
   const [category, setCategory] = useState("category1");
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +30,7 @@ export default function Home() {
 
   return (
     <div>
+      <NavigationBar user={user} />
       <main className={styles.main}>
         <div className={styles.center}>
           <SplitContent />
