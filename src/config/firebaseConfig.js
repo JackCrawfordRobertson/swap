@@ -1,10 +1,11 @@
+// src/config/firebaseConfig.js
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAzKATJJmEDAYnFntmDfAW0tgNPapkA0l8",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, // Use environment variable
   authDomain: "swapp-7f6f8.firebaseapp.com",
   projectId: "swapp-7f6f8",
   storageBucket: "swapp-7f6f8.appspot.com",
