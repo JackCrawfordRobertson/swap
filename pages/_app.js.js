@@ -5,6 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import '../src/app/styles/globals.css';
 import { AuthProvider } from '../src/context/AuthContext';
 import Script from 'next/script';
+import NavigationBar from '../src/app/components/NavigationBar';
+import styles from "../src/app/styles/page.module.css";
 
 const theme = createTheme({
   palette: {
@@ -29,6 +31,9 @@ function MyApp({ Component, pageProps }) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
+          <div className={styles.NavigationBar}>
+            <NavigationBar />
+          </div>
           <Component {...pageProps} />
         </AuthProvider>
       </ThemeProvider>
