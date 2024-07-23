@@ -5,9 +5,14 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Function to get all venues
 export const getVenues = async () => {
-  const querySnapshot = await getDocs(collection(db, 'venues'));
-  const venues = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-  return venues;
+  try {
+    const querySnapshot = await getDocs(collection(db, 'venues'));
+    const venues = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+    return venues;
+  } catch (error) {
+    console.error("Error getting documents: ", error);
+    throw error;
+  }
 };
 
 // Function to add a new venue
@@ -17,6 +22,7 @@ export const addVenue = async (venue) => {
     console.log("Document written with ID: ", docRef.id);
   } catch (error) {
     console.error("Error adding document: ", error);
+    throw error;
   }
 };
 
@@ -27,6 +33,7 @@ export const updatePost = async (id, updatedData) => {
     await updateDoc(postRef, updatedData);
   } catch (error) {
     console.error("Error updating document: ", error);
+    throw error;
   }
 };
 
@@ -45,9 +52,14 @@ export const uploadImage = async (file) => {
 
 // Function to get user's posts
 export const getUserPosts = async (userId) => {
-  const querySnapshot = await getDocs(collection(db, 'venues'));
-  const posts = querySnapshot.docs
-    .map(doc => ({ ...doc.data(), id: doc.id }))
-    .filter(post => post.userId === userId);
-  return posts;
+  try {
+    const querySnapshot = await getDocs(collection(db, 'venues'));
+    const posts = querySnapshot.docs
+      .map(doc => ({ ...doc.data(), id: doc.id }))
+      .filter(post => post.userId === userId);
+    return posts;
+  } catch (error) {
+    console.error("Error getting user posts: ", error);
+    throw error;
+  }
 };
