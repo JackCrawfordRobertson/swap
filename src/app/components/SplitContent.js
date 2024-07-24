@@ -37,7 +37,7 @@ export default function SplitContent() {
             lineHeight: 1,
           }}
         >
-          SWAP and share your location and venues for any event.
+          SWAP - Why not consider swapping venues with a fellow corporate planner.
         </Typography>
         <Typography
           variant={isMobile ? 'h4' : 'h5'}
@@ -45,11 +45,11 @@ export default function SplitContent() {
           sx={{
             fontWeight: 'Regular',
             color: textColor,
-            lineHeight: 1,
+            lineHeight: 1.1,
             marginTop: 2,
           }}
         >
-          SWAP simplifies venue swapping and sharing for events, connecting users with diverse spaces to create unforgettable experiences.
+          When budgets are tight and you still want your internal events to be special use SWAP. Get started by using button above or start searching venues today!
         </Typography>
       </Box>
       {!isMobile && (
