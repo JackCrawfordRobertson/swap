@@ -27,7 +27,7 @@ const Overlay = styled(Box)({
   left: 0,
   width: '100%',
   height: '100%',
-  backgroundColor: 'rgba(236, 240, 241,1.0)',
+  backgroundColor: 'rgba(0, 0, 0, 0.1)',
 });
 
 const ContentBox = styled(Box)(({ theme }) => ({

@@ -8,7 +8,6 @@ import { AuthContext } from '../src/context/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const fetchCityFromAddress = async (address) => {
   try {
     const response = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`);
@@ -19,7 +18,6 @@ const fetchCityFromAddress = async (address) => {
     return address;
   }
 };
-
 
 export default function Results() {
   const router = useRouter();
@@ -35,8 +33,8 @@ export default function Results() {
         venue.city = await fetchCityFromAddress(venue.location);
       }
       const filtered = allVenues.filter(venue =>
-        (!eventType || venue.eventType === eventType) &&
-        (!guests || venue.capacity >= guests) &&
+        (!eventType || venue.venueType === eventType) &&
+        (!guests || parseInt(venue.capacity) >= parseInt(guests)) &&
         (!location || venue.city.toLowerCase().includes(location.toLowerCase()))
       );
       setFilteredVenues(filtered);
@@ -136,7 +134,7 @@ export default function Results() {
               onClick={handleCopyEmail}
               sx={{ mt: 2, width: '100%', color: 'white' }}
             >
-              Book
+              Contact
             </Button>
           </DialogContent>
         </Dialog>

@@ -63,6 +63,7 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
       query: { eventType, guests, location }
     });
   };
+  
 
   const isSearchDisabled = !eventType && !guests && !location;
 
