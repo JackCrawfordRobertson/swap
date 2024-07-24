@@ -2,13 +2,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box, Typography, Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box } from '@mui/material';
 import styles from "../src/app/styles/page.module.css";
 import SplitContent from "../src/app/components/SplitContent";
 import CategorySelect from "../src/app/components/CategorySelect";
 import { getVenues } from "../src/utils/firestore";
 import NavigationBar from "../src/app/components/NavigationBar";
-import { AuthContext } from "../src/context/AuthContext";
+import { AuthContext, AuthProvider } from "../src/context/AuthContext";
+import Script from 'next/script';
 
 const theme = createTheme({
   palette: {
@@ -45,18 +46,26 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ margin: '1em' }}>
-        <NavigationBar user={user} />
-      </Box>
-      <main className={styles.main}>
-        <Box className={styles.center}>
-          <SplitContent />
+      <AuthProvider>
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+          strategy="beforeInteractive"
+          async
+          defer
+        />
+        <Box sx={{ margin: '1em' }}>
+          <NavigationBar user={user} />
         </Box>
-        <Box className={styles.CategorySelect}>
-          <CategorySelect category={category} handleCategoryChange={handleCategoryChange} venues={venues} />
-        </Box>
-        <Box className={styles.firebaseContainer}>{/* Placeholder for Firebase array data */}</Box>
-      </main>
+        <main className={styles.main}>
+          <Box className={styles.center}>
+            <SplitContent />
+          </Box>
+          <Box className={styles.CategorySelect}>
+            <CategorySelect category={category} handleCategoryChange={handleCategoryChange} venues={venues} />
+          </Box>
+          <Box className={styles.firebaseContainer}>{/* Placeholder for Firebase array data */}</Box>
+        </main>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

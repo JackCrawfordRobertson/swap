@@ -4,8 +4,8 @@ import { Button, Box, Typography, TextField, Grid, Alert } from '@mui/material';
 import { AuthContext } from '../../context/AuthContext';
 import { signInWithGoogle, signInWithEmail, registerWithEmail } from '../../utils/auth';
 import { useRouter } from 'next/router';
-import PersonIcon from '@mui/icons-material/Person';
 import { styled } from '@mui/material/styles';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const BackgroundBox = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -40,6 +40,15 @@ const ContentBox = styled(Box)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#5fa7d9',
+  color: theme.palette.common.white,
+  '&:hover': {
+    backgroundColor: '#4a90c0',
+  },
+  marginRight: theme.spacing(2),
+}));
+
 export default function GetStartedScreen() {
   const { user } = useContext(AuthContext);
   const router = useRouter();
@@ -52,6 +61,16 @@ export default function GetStartedScreen() {
       router.push('/');
     }
   }, [user, router]);
+
+  const handleSignInWithGoogle = async () => {
+    try {
+      setError(null);
+      await signInWithGoogle();
+      router.push('/');
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   const handleSignInWithEmail = async () => {
     try {
@@ -89,22 +108,14 @@ export default function GetStartedScreen() {
         <Typography variant="body1" gutterBottom>
           Please log in to continue.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<PersonIcon />}
-          onClick={async () => {
-            try {
-              await signInWithGoogle();
-              router.push('/');
-            } catch (error) {
-              setError(error.message);
-            }
-          }}
-          sx={{ color: 'white', margin: '1em' }} // Set text color to white
+        <StyledButton
+          variant="outlined"
+          startIcon={<ArrowForwardIosIcon style={{ color: 'white' }} />}
+          onClick={handleSignInWithGoogle}
+          sx={{ color: 'white', margin: '1em' }}
         >
           Login with Google
-        </Button>
+        </StyledButton>
         {error && <Alert severity="error">{error}</Alert>}
         <Grid container spacing={2} justifyContent="center">
           <Grid item xs={12}>
