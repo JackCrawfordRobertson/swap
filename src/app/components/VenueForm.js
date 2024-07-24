@@ -9,10 +9,13 @@ const VenueForm = ({ user, onClose }) => {
     const [name, setName] = useState("");
     const [location, setLocation] = useState("");
     const [capacity, setCapacity] = useState("");
-    const [venueType, setVenueType] = useState(""); // New state variable for venue type
+    const [venueType, setVenueType] = useState("");
+    const [description, setDescription] = useState("");
+    const [bookingEmail, setBookingEmail] = useState("");
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [uploadComplete, setUploadComplete] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,7 +35,9 @@ const VenueForm = ({ user, onClose }) => {
                 name,
                 location,
                 capacity,
-                venueType, // Include venue type
+                venueType,
+                description,
+                bookingEmail,
                 images: imageUrls,
                 userId: user.uid,
             };
@@ -42,13 +47,20 @@ const VenueForm = ({ user, onClose }) => {
             setName("");
             setLocation("");
             setCapacity("");
-            setVenueType(""); // Reset venue type
+            setVenueType("");
+            setDescription("");
+            setBookingEmail("");
             setImages([]);
             setImagePreviews([]);
+            setUploadComplete(true);
         } catch (error) {
             console.error("Error submitting venue: ", error);
         } finally {
             setLoading(false);
+            setTimeout(() => {
+                setUploadComplete(false);
+                onClose();
+            }, 2000); // Close drawer after 2 seconds
         }
     };
 
@@ -73,6 +85,13 @@ const VenueForm = ({ user, onClose }) => {
         const results = await geocodeByAddress(address);
         const latLng = await getLatLng(results[0]);
         setLocation(address);
+    };
+
+    const handleDescriptionChange = (e) => {
+        const words = e.target.value.split(/\s+/);
+        if (words.length <= 100) {
+            setDescription(e.target.value);
+        }
     };
 
     return (
@@ -124,8 +143,17 @@ const VenueForm = ({ user, onClose }) => {
                     )}
                 </PlacesAutocomplete>
                 <TextField label="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
+                <TextField
+                    label="Booking Contact Email"
+                    type="email"
+                    value={bookingEmail}
+                    onChange={(e) => setBookingEmail(e.target.value)}
+                    required
+                />
                 <FormControl fullWidth>
+                    
                     <InputLabel>Venue Type</InputLabel>
+                    
                     <Select value={venueType} onChange={(e) => setVenueType(e.target.value)} required>
                         <MenuItem value="Concert Hall">Concert Hall</MenuItem>
                         <MenuItem value="Conference Center">Conference Center</MenuItem>
@@ -134,6 +162,17 @@ const VenueForm = ({ user, onClose }) => {
                         <MenuItem value="Other">Other</MenuItem>
                     </Select>
                 </FormControl>
+                <TextField
+                    label="Description"
+                    value={description}
+                    onChange={handleDescriptionChange}
+                    multiline
+                    rows={4}
+                    inputProps={{ maxLength: 500 }}
+                    helperText={`${description.split(/\s+/).length}/100 words`}
+                    required
+                />
+              
                 <Input type="file" inputProps={{ multiple: true }} onChange={handleImageChange} required sx={{ marginBottom: 2 }} />
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2 }}>
                     {imagePreviews.map((src, index) => (
@@ -158,6 +197,7 @@ const VenueForm = ({ user, onClose }) => {
                     Add Venue
                 </Button>
                 {loading && <LinearProgress sx={{ marginTop: 2 }} />}
+                {uploadComplete && <Typography variant="body1" color="green" sx={{ marginTop: 2 }}>Upload Complete</Typography>}
             </Box>
         </Box>
     );

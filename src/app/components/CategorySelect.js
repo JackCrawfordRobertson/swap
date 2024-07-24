@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, FormControl, InputLabel, TextField, InputAdornment, Button, MenuItem, Select } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
@@ -6,18 +6,41 @@ import PlaceIcon from '@mui/icons-material/Place';
 import SearchIcon from '@mui/icons-material/Search';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
+import { getCityFromAddress } from '@/utils/geocode';
 
 export default function CategorySelect({ category, handleCategoryChange, venues }) {
   const [eventType, setEventType] = useState('');
   const [guests, setGuests] = useState('');
   const [location, setLocation] = useState('');
+  const [cities, setCities] = useState([]);
+  const [eventTypes, setEventTypes] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const router = useRouter();
 
-  const locations = Array.from(new Set(venues.map(venue => venue.location)));
-  const guestRange = Array.from(new Set(venues.map(venue => venue.capacity))).sort((a, b) => a - b);
-  const venueTypes = Array.from(new Set(venues.map(venue => venue.venueType))); // Get unique venue types
+  useEffect(() => {
+    const fetchCitiesAndEventTypes = async () => {
+      const uniqueCities = new Set();
+      const uniqueEventTypes = new Set();
+      for (const venue of venues) {
+        try {
+          const city = await getCityFromAddress(venue.location);
+          if (city) {
+            uniqueCities.add(city);
+          }
+          if (venue.venueType) {
+            uniqueEventTypes.add(venue.venueType);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      setCities(Array.from(uniqueCities));
+      setEventTypes(Array.from(uniqueEventTypes));
+    };
+
+    fetchCitiesAndEventTypes();
+  }, [venues]);
 
   const handleEventTypeChange = (event) => {
     setEventType(event.target.value);
@@ -40,6 +63,8 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
       query: { eventType, guests, location }
     });
   };
+
+  const isSearchDisabled = !eventType && !guests && !location;
 
   return (
     <Box
@@ -70,8 +95,10 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
           }
           sx={{ color: 'black' }}
         >
-          {venueTypes.map((type, index) => (
-            <MenuItem key={index} value={type}>{type}</MenuItem>
+          {eventTypes.map((type, index) => (
+            <MenuItem key={index} value={type}>
+              {type}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -106,8 +133,10 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
           }
           sx={{ color: 'black' }}
         >
-          {locations.map((loc, index) => (
-            <MenuItem key={index} value={loc}>{loc}</MenuItem>
+          {cities.map((city, index) => (
+            <MenuItem key={index} value={city}>
+              {city}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -117,6 +146,7 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
         sx={{ height: '56px', marginTop: isMobile ? '16px' : '0px', borderRadius: 3, backgroundColor: '#5fa7d9', color: '#fff' }}
         startIcon={<SearchIcon />}
         onClick={handleSearch}
+        disabled={isSearchDisabled}
       >
         Search
       </Button>

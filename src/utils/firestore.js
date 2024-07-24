@@ -1,13 +1,17 @@
-// src/utils/firestore.js
 import { db, storage } from '../config/firebaseConfig';
-import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 // Function to get all venues
-export const getVenues = async () => {
+export const getVenues = async (filters = {}) => {
   try {
     const querySnapshot = await getDocs(collection(db, 'venues'));
-    const venues = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+    let venues = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+
+    if (filters.location) {
+      venues = venues.filter(venue => venue.location.toLowerCase().includes(filters.location.toLowerCase()));
+    }
+
     return venues;
   } catch (error) {
     console.error("Error getting documents: ", error);
@@ -60,6 +64,29 @@ export const getUserPosts = async (userId) => {
     return posts;
   } catch (error) {
     console.error("Error getting user posts: ", error);
+    throw error;
+  }
+};
+
+// Function to delete an image from Firebase Storage
+export const deleteImage = async (imageUrl) => {
+  try {
+    const imageRef = ref(storage, imageUrl);
+    await deleteObject(imageRef);
+    console.log("Image deleted successfully");
+  } catch (error) {
+    console.error("Error deleting image: ", error);
+    throw error;
+  }
+};
+
+// Function to delete a post from Firestore
+export const deletePost = async (postId) => {
+  try {
+    await deleteDoc(doc(db, 'venues', postId));
+    console.log("Post deleted successfully");
+  } catch (error) {
+    console.error("Error deleting post: ", error);
     throw error;
   }
 };

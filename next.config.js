@@ -1,4 +1,3 @@
-// next.config.js
 const path = require('path');
 
 /** @type {import('next').NextConfig} */
@@ -10,8 +9,10 @@ const nextConfig = {
   },
   webpack: (config, { isServer }) => {
     config.resolve.alias['@'] = path.resolve(__dirname, 'src');
+    config.resolve.alias['node:buffer'] = require.resolve('buffer/');
+    config.resolve.alias['node:stream'] = require.resolve('stream-browserify');
     return config;
-  }
+  },
 };
 
 module.exports = nextConfig;

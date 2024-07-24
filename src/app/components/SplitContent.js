@@ -64,11 +64,12 @@ export default function SplitContent() {
           }}
         >
           <Image
-            src="/Landing.png" // Change this to the path of your image
-            alt="Descriptive Alt Text"
-            layout="fill"
-            objectFit="cover"
-          />
+      src="/Landing.png" // Change this to the path of your image
+      alt="Descriptive Alt Text"
+      fill // Replaces layout="fill"
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Adjust this based on your layout
+      priority // Add this if the image is above the fold
+    />
         </Box>
       )}
     </Box>
