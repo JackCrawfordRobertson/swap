@@ -30,8 +30,9 @@ export default function Home() {
 
   return (
     <div>
-      <NavigationBar user={user} />
       <main className={styles.main}>
+      <NavigationBar user={user} />
+
         <div className={styles.center}>
           <SplitContent />
         </div>

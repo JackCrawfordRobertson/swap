@@ -49,7 +49,7 @@ export default function SplitContent() {
             marginTop: 2,
           }}
         >
-          Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text Sub copy Text
+          SWAP simplifies venue swapping and sharing for events, connecting users with diverse spaces to create unforgettable experiences.
         </Typography>
       </Box>
       {!isMobile && (

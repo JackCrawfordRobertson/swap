@@ -1,14 +1,15 @@
-import React, {useState} from "react";
-import {Box, TextField, Button, Input, LinearProgress, IconButton, Typography} from "@mui/material";
-import {addVenue, uploadImage} from "../../utils/firestore";
+import React, { useState } from "react";
+import { Box, TextField, Button, Input, LinearProgress, IconButton, Typography, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import { addVenue, uploadImage } from "../../utils/firestore";
 import CloseIcon from "@mui/icons-material/Close";
-import PlacesAutocomplete, {geocodeByAddress, getLatLng} from "react-places-autocomplete";
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from "react-places-autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const VenueForm = ({user, onClose}) => {
+const VenueForm = ({ user, onClose }) => {
     const [name, setName] = useState("");
     const [location, setLocation] = useState("");
     const [capacity, setCapacity] = useState("");
+    const [venueType, setVenueType] = useState(""); // New state variable for venue type
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -31,6 +32,7 @@ const VenueForm = ({user, onClose}) => {
                 name,
                 location,
                 capacity,
+                venueType, // Include venue type
                 images: imageUrls,
                 userId: user.uid,
             };
@@ -40,6 +42,7 @@ const VenueForm = ({user, onClose}) => {
             setName("");
             setLocation("");
             setCapacity("");
+            setVenueType(""); // Reset venue type
             setImages([]);
             setImagePreviews([]);
         } catch (error) {
@@ -73,17 +76,17 @@ const VenueForm = ({user, onClose}) => {
     };
 
     return (
-        <Box sx={{width: 400, padding: 4}}>
-            <IconButton onClick={onClose} sx={{alignSelf: "flex-end"}}>
+        <Box sx={{ width: 400, padding: 4 }}>
+            <IconButton onClick={onClose} sx={{ alignSelf: "flex-end" }}>
                 <CloseIcon />
             </IconButton>
             <Typography variant="h6" gutterBottom>
                 Add Venue
             </Typography>
-            <Box component="form" onSubmit={handleSubmit} sx={{display: "flex", flexDirection: "column", gap: 2}}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <TextField label="Venue Name" value={name} onChange={(e) => setName(e.target.value)} required />
                 <PlacesAutocomplete value={location} onChange={setLocation} onSelect={handleSelect}>
-                    {({getInputProps, suggestions, getSuggestionItemProps, loading}) => (
+                    {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                         <div>
                             <TextField
                                 {...getInputProps({
@@ -93,7 +96,7 @@ const VenueForm = ({user, onClose}) => {
                                     required: true,
                                 })}
                             />
-                            <Box sx={{position: "relative", zIndex: 1000}}>
+                            <Box sx={{ position: "relative", zIndex: 1000 }}>
                                 {loading && <div>Loading...</div>}
                                 {suggestions.length > 0 && (
                                     <Box
@@ -106,10 +109,10 @@ const VenueForm = ({user, onClose}) => {
                                     >
                                         {suggestions.map((suggestion, index) => {
                                             const style = suggestion.active
-                                                ? {backgroundColor: "#a8dadc", cursor: "pointer", padding: "10px"}
-                                                : {backgroundColor: "#fff", cursor: "pointer", padding: "10px"};
+                                                ? { backgroundColor: "#a8dadc", cursor: "pointer", padding: "10px" }
+                                                : { backgroundColor: "#fff", cursor: "pointer", padding: "10px" };
                                             return (
-                                                <Box {...getSuggestionItemProps(suggestion, {style})} key={index}>
+                                                <Box {...getSuggestionItemProps(suggestion, { style })} key={index}>
                                                     {suggestion.description}
                                                 </Box>
                                             );
@@ -121,36 +124,40 @@ const VenueForm = ({user, onClose}) => {
                     )}
                 </PlacesAutocomplete>
                 <TextField label="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
-                <Input
-                    type="file"
-                    inputProps={{multiple: true}}
-                    onChange={handleImageChange}
-                    required
-                    sx={{marginBottom: 2}}
-                />
-                <Box sx={{display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2}}>
+                <FormControl fullWidth>
+                    <InputLabel>Venue Type</InputLabel>
+                    <Select value={venueType} onChange={(e) => setVenueType(e.target.value)} required>
+                        <MenuItem value="Concert Hall">Concert Hall</MenuItem>
+                        <MenuItem value="Conference Center">Conference Center</MenuItem>
+                        <MenuItem value="Outdoor Space">Outdoor Space</MenuItem>
+                        <MenuItem value="Restaurant">Restaurant</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                    </Select>
+                </FormControl>
+                <Input type="file" inputProps={{ multiple: true }} onChange={handleImageChange} required sx={{ marginBottom: 2 }} />
+                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2 }}>
                     {imagePreviews.map((src, index) => (
-                        <Box key={index} sx={{position: "relative", width: "100px", height: "100px"}}>
+                        <Box key={index} sx={{ position: "relative", width: "100px", height: "100px" }}>
                             <img
                                 src={src}
                                 alt={`preview-${index}`}
                                 width="100"
                                 height="100"
-                                style={{objectFit: "cover", borderRadius: "8px"}}
+                                style={{ objectFit: "cover", borderRadius: "8px" }}
                             />
                             <IconButton
                                 onClick={() => handleRemoveImage(index)}
-                                sx={{position: "absolute", top: 0, right: 0, padding: "2px", color: "red"}}
+                                sx={{ position: "absolute", top: 0, right: 0, padding: "2px", color: "red" }}
                             >
                                 <DeleteIcon />
                             </IconButton>
                         </Box>
                     ))}
                 </Box>
-                <Button type="submit" variant="contained" color="primary" sx={{color: "white"}}>
+                <Button type="submit" variant="contained" color="primary" sx={{ color: "white" }}>
                     Add Venue
                 </Button>
-                {loading && <LinearProgress sx={{marginTop: 2}} />}
+                {loading && <LinearProgress sx={{ marginTop: 2 }} />}
             </Box>
         </Box>
     );

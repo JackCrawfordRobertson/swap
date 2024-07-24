@@ -1,5 +1,4 @@
-// src/app/components/CategorySelect.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, FormControl, InputLabel, TextField, InputAdornment, Button, MenuItem, Select } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
@@ -18,6 +17,7 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
 
   const locations = Array.from(new Set(venues.map(venue => venue.location)));
   const guestRange = Array.from(new Set(venues.map(venue => venue.capacity))).sort((a, b) => a - b);
+  const venueTypes = Array.from(new Set(venues.map(venue => venue.venueType))); // Get unique venue types
 
   const handleEventTypeChange = (event) => {
     setEventType(event.target.value);
@@ -58,20 +58,22 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
       }}
     >
       <FormControl variant="outlined" sx={{ flex: 1 }}>
-        <TextField
+        <InputLabel>Event Type</InputLabel>
+        <Select
           value={eventType}
           onChange={handleEventTypeChange}
           label="Event Type"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <EventIcon style={{ color: 'gray' }} />
-              </InputAdornment>
-            ),
-            style: { color: 'black' }
-          }}
-          fullWidth
-        />
+          startAdornment={
+            <InputAdornment position="start">
+              <EventIcon style={{ color: 'gray' }} />
+            </InputAdornment>
+          }
+          sx={{ color: 'black' }}
+        >
+          {venueTypes.map((type, index) => (
+            <MenuItem key={index} value={type}>{type}</MenuItem>
+          ))}
+        </Select>
       </FormControl>
 
       <FormControl variant="outlined" sx={{ flex: 1 }}>
