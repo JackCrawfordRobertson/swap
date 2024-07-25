@@ -4,18 +4,23 @@ import { addVenue, uploadImage } from "../../utils/firestore";
 import CloseIcon from "@mui/icons-material/Close";
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from "react-places-autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const VenueForm = ({ user, onClose }) => {
     const [name, setName] = useState("");
     const [location, setLocation] = useState("");
     const [capacity, setCapacity] = useState("");
     const [venueType, setVenueType] = useState("");
+    const [customVenueType, setCustomVenueType] = useState(""); // State for custom venue type
     const [description, setDescription] = useState("");
     const [bookingEmail, setBookingEmail] = useState("");
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploadComplete, setUploadComplete] = useState(false);
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Hook to determine if the screen size is small
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,7 +40,7 @@ const VenueForm = ({ user, onClose }) => {
                 name,
                 location,
                 capacity,
-                venueType,
+                venueType: venueType === "Other" ? customVenueType : venueType, // Use custom venue type if "Other"
                 description,
                 bookingEmail,
                 images: imageUrls,
@@ -48,6 +53,7 @@ const VenueForm = ({ user, onClose }) => {
             setLocation("");
             setCapacity("");
             setVenueType("");
+            setCustomVenueType(""); // Reset custom venue type
             setDescription("");
             setBookingEmail("");
             setImages([]);
@@ -95,7 +101,7 @@ const VenueForm = ({ user, onClose }) => {
     };
 
     return (
-        <Box sx={{ width: 400, padding: 4 }}>
+        <Box sx={{ width: isMobile ? '100%' : 400, padding: 4 }}>
             <IconButton onClick={onClose} sx={{ alignSelf: "flex-end" }}>
                 <CloseIcon />
             </IconButton>
@@ -151,17 +157,22 @@ const VenueForm = ({ user, onClose }) => {
                     required
                 />
                 <FormControl fullWidth>
-                    
                     <InputLabel>Venue Type</InputLabel>
-                    
                     <Select value={venueType} onChange={(e) => setVenueType(e.target.value)} required>
-                        <MenuItem value="Concert Hall">Concert Hall</MenuItem>
-                        <MenuItem value="Conference Center">Conference Center</MenuItem>
-                        <MenuItem value="Outdoor Space">Outdoor Space</MenuItem>
-                        <MenuItem value="Restaurant">Restaurant</MenuItem>
+                        <MenuItem value="Awards">Awards</MenuItem>
+                        <MenuItem value="Conference">Conference</MenuItem>
+                        <MenuItem value="Leadership Lunch">Leadership Lunch</MenuItem>
                         <MenuItem value="Other">Other</MenuItem>
                     </Select>
                 </FormControl>
+                {venueType === "Other" && (
+                    <TextField
+                        label="Custom Venue Type"
+                        value={customVenueType}
+                        onChange={(e) => setCustomVenueType(e.target.value)}
+                        required
+                    />
+                )}
                 <TextField
                     label="Description"
                     value={description}
@@ -172,7 +183,6 @@ const VenueForm = ({ user, onClose }) => {
                     helperText={`${description.split(/\s+/).length}/100 words`}
                     required
                 />
-              
                 <Input type="file" inputProps={{ multiple: true }} onChange={handleImageChange} required sx={{ marginBottom: 2 }} />
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2 }}>
                     {imagePreviews.map((src, index) => (

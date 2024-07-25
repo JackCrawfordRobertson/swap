@@ -4,7 +4,7 @@ import { Box, Typography, Grid, Card, CardContent, CardMedia, Dialog, DialogCont
 import CloseIcon from '@mui/icons-material/Close';
 import { getVenues } from '../src/utils/firestore';
 import NavigationBar from '../src/app/components/NavigationBar';
-import { AuthContext } from '../src/context/AuthContext';
+import { AuthContext, AuthProvider } from '../src/context/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -19,7 +19,7 @@ const fetchCityFromAddress = async (address) => {
   }
 };
 
-export default function Results() {
+const ResultsContent = () => {
   const router = useRouter();
   const { eventType, guests, location } = router.query;
   const [filteredVenues, setFilteredVenues] = useState([]);
@@ -62,7 +62,7 @@ export default function Results() {
   };
 
   return (
-    <div>
+    <>
       <div style={{ margin: '1em' }}>
         <NavigationBar user={user} />
       </div>
@@ -140,6 +140,14 @@ export default function Results() {
         </Dialog>
       )}
       <ToastContainer />
-    </div>
+    </>
+  );
+};
+
+export default function Results() {
+  return (
+    <AuthProvider>
+      <ResultsContent />
+    </AuthProvider>
   );
 }
