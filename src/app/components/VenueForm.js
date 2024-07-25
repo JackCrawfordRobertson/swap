@@ -4,7 +4,6 @@ import { addVenue, uploadImage } from "../../utils/firestore";
 import CloseIcon from "@mui/icons-material/Close";
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from "react-places-autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useMediaQuery, useTheme } from "@mui/material";
 
 const VenueForm = ({ user, onClose }) => {
     const [name, setName] = useState("");
@@ -18,9 +17,6 @@ const VenueForm = ({ user, onClose }) => {
     const [imagePreviews, setImagePreviews] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploadComplete, setUploadComplete] = useState(false);
-
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Hook to determine if the screen size is small
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -101,7 +97,7 @@ const VenueForm = ({ user, onClose }) => {
     };
 
     return (
-        <Box sx={{ width: isMobile ? '100%' : 400, padding: 4 }}>
+        <Box sx={{ width: 400, padding: 4 }}>
             <IconButton onClick={onClose} sx={{ alignSelf: "flex-end" }}>
                 <CloseIcon />
             </IconButton>

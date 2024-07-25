@@ -7,6 +7,21 @@ import NavigationBar from '../src/app/components/NavigationBar';
 import { AuthContext, AuthProvider } from '../src/context/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#5fa7d9',
+    },
+    secondary: {
+      main: '#ffffff',
+    },
+  },
+});
+
 
 const fetchCityFromAddress = async (address) => {
   try {
@@ -146,8 +161,11 @@ const ResultsContent = () => {
 
 export default function Results() {
   return (
+    <ThemeProvider theme={theme}>
+              <CssBaseline />
     <AuthProvider>
       <ResultsContent />
     </AuthProvider>
+    </ThemeProvider>
   );
 }
