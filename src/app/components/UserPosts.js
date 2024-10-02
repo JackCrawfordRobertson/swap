@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Typography,
@@ -16,25 +16,31 @@ import {
     InputLabel,
     Select,
     Snackbar,
+    FormControlLabel,
+    Switch,
 } from "@mui/material";
-import {getUserPosts, updatePost, uploadImage, deleteImage, deletePost} from "../../utils/firestore";
+import { getUserPosts, updatePost, uploadImage, deleteImage, deletePost } from "../../utils/firestore";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
-import PlacesAutocomplete, {geocodeByAddress, getLatLng} from "react-places-autocomplete";
-import {getCityFromAddress} from "../../utils/geocode"; // Import the function
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from "react-places-autocomplete";
+import { getCityFromAddress } from "../../utils/geocode"; // Import the function
 
-const UserPosts = ({user, open, onClose}) => {
+const UserPosts = ({ user, open, onClose }) => {
     const [posts, setPosts] = useState([]);
     const [editPost, setEditPost] = useState(null);
     const [editData, setEditData] = useState({
         name: "",
         location: "",
-        capacity: "",
+        seatingType: "",
+        capacity: { seated: "", standing: "" },
+        squareFootage: "",
         venueType: "",
         description: "",
         bookingEmail: "",
         images: [],
+        hasAVFacilities: false,
+        hasCatering: { onSite: false, external: false },
     });
     const [newImages, setNewImages] = useState([]);
     const [openEdit, setOpenEdit] = useState(false);
@@ -50,15 +56,12 @@ const UserPosts = ({user, open, onClose}) => {
     const fetchPosts = async () => {
         try {
             const userPosts = await getUserPosts(user.uid);
-
-            // Fetch city names for each post
             const postsWithCity = await Promise.all(
                 userPosts.map(async (post) => {
                     const city = await getCityFromAddress(post.location);
-                    return {...post, city};
+                    return { ...post, city };
                 })
             );
-
             setPosts(postsWithCity);
         } catch (error) {
             console.error("Error fetching user posts:", error);
@@ -70,11 +73,15 @@ const UserPosts = ({user, open, onClose}) => {
         setEditData({
             name: post.name,
             location: post.location,
+            seatingType: post.seatingType,
             capacity: post.capacity,
+            squareFootage: post.squareFootage,
             venueType: post.venueType,
             description: post.description,
             bookingEmail: post.bookingEmail,
             images: post.images,
+            hasAVFacilities: post.hasAVFacilities,
+            hasCatering: post.hasCatering,
         });
         setOpenEdit(true);
     };
@@ -82,8 +89,8 @@ const UserPosts = ({user, open, onClose}) => {
     const handleEditClose = () => setOpenEdit(false);
 
     const handleEditChange = (e) => {
-        const {name, value} = e.target;
-        setEditData({...editData, [name]: value});
+        const { name, value } = e.target;
+        setEditData({ ...editData, [name]: value });
     };
 
     const handleImageChange = (e) => {
@@ -95,7 +102,7 @@ const UserPosts = ({user, open, onClose}) => {
             await deleteImage(editData.images[index]);
             const newImages = Array.from(editData.images);
             newImages.splice(index, 1);
-            setEditData({...editData, images: newImages});
+            setEditData({ ...editData, images: newImages });
         } catch (error) {
             console.error("Error removing image: ", error);
         }
@@ -104,35 +111,56 @@ const UserPosts = ({user, open, onClose}) => {
     const handleSelect = async (address) => {
         const results = await geocodeByAddress(address);
         const latLng = await getLatLng(results[0]);
-        setEditData({...editData, location: address});
+        setEditData({ ...editData, location: address });
     };
 
     const handleEditSubmit = async () => {
         try {
             let imageUrls = editData.images;
-
+    
+            // Upload new images if any
             if (newImages.length > 0) {
                 const imageUploadPromises = Array.from(newImages).map((image) => uploadImage(image));
                 const newImageUrls = await Promise.all(imageUploadPromises);
                 imageUrls = [...imageUrls, ...newImageUrls];
             }
-
-            const updatedData = {...editData, images: imageUrls};
+    
+            // Filter out undefined values
+            const updatedData = {
+                ...editData,
+                images: imageUrls,
+                venueType: editData.venueType || "Unknown", // Set a default value if venueType is undefined
+            };
+    
+            // Remove any fields with undefined values
+            Object.keys(updatedData).forEach(key => {
+                if (updatedData[key] === undefined) {
+                    delete updatedData[key];
+                }
+            });
+    
+            console.log("Submitting updated data:", updatedData); // Check the updated data before sending
+    
+            // Firestore update call
             await updatePost(editPost.id, updatedData);
+    
+            setSnackbarMessage("Changes saved successfully!");
+            setOpenSnackbar(true); // Show success message
+    
             setOpenEdit(false);
             fetchPosts(); // Refresh posts
         } catch (error) {
-            console.error("Error updating post:", error);
+            console.error("Error updating post:", error); // Log any errors from Firestore
+            setSnackbarMessage("Failed to save changes");
+            setOpenSnackbar(true);
         }
     };
 
     const handleDeletePost = async () => {
         try {
-            // Delete images from storage
             for (const imageUrl of editData.images) {
                 await deleteImage(imageUrl);
             }
-            // Delete post from Firestore
             await deletePost(editPost.id);
             setOpenEdit(false);
             setSnackbarMessage("Successfully deleted post");
@@ -150,8 +178,8 @@ const UserPosts = ({user, open, onClose}) => {
     return (
         <>
             <Drawer anchor="right" open={open} onClose={onClose}>
-                <Box sx={{width: 400, padding: 2}}>
-                    <IconButton onClick={onClose} sx={{position: "absolute", right: 8, top: 8, color: "grey.500"}}>
+                <Box sx={{ width: 400, padding: 2 }}>
+                    <IconButton onClick={onClose} sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}>
                         <CloseIcon />
                     </IconButton>
                     <Typography variant="h6" gutterBottom>
@@ -176,14 +204,13 @@ const UserPosts = ({user, open, onClose}) => {
                                         src={post.images[0]}
                                         alt={`preview-${post.id}`}
                                         width="100%"
-                                        style={{objectFit: "cover", borderRadius: "8px", marginBottom: 8}}
+                                        style={{ objectFit: "cover", borderRadius: "8px", marginBottom: 8 }}
                                     />
                                 )}
                                 <ListItemText
                                     primary={post.name}
-                                    secondary={`Location: ${post.city}, Capacity: ${post.capacity}`}
-                                />{" "}
-                                {/* Use city instead of full location */}
+                                    secondary={`Location: ${post.city}, Capacity: ${post.capacity.seated} seated, ${post.capacity.standing} standing`}
+                                />
                                 <ListItemSecondaryAction>
                                     <IconButton edge="end" onClick={() => handleEditOpen(post)}>
                                         <EditIcon />
@@ -201,7 +228,7 @@ const UserPosts = ({user, open, onClose}) => {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: 400,
+                        width: 700,
                         bgcolor: "background.paper",
                         border: "2px solid #000",
                         boxShadow: 24,
@@ -211,7 +238,7 @@ const UserPosts = ({user, open, onClose}) => {
                     <IconButton
                         aria-label="close"
                         onClick={handleEditClose}
-                        sx={{position: "absolute", right: 8, top: 8, color: "grey.500"}}
+                        sx={{ position: "absolute", right: 8, top: 8, color: "grey.500" }}
                     >
                         <CloseIcon />
                     </IconButton>
@@ -223,14 +250,14 @@ const UserPosts = ({user, open, onClose}) => {
                         value={editData.name}
                         onChange={handleEditChange}
                         fullWidth
-                        sx={{marginBottom: 2, marginTop: 2}}
+                        sx={{ marginBottom: 2, marginTop: 2 }}
                     />
                     <PlacesAutocomplete
                         value={editData.location}
-                        onChange={(location) => setEditData({...editData, location})}
+                        onChange={(location) => setEditData({ ...editData, location })}
                         onSelect={handleSelect}
                     >
-                        {({getInputProps, suggestions, getSuggestionItemProps, loading}) => (
+                        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                             <div>
                                 <TextField
                                     {...getInputProps({
@@ -240,7 +267,7 @@ const UserPosts = ({user, open, onClose}) => {
                                         required: true,
                                     })}
                                 />
-                                <Box sx={{position: "relative", zIndex: 1000}}>
+                                <Box sx={{ position: "relative", zIndex: 1000 }}>
                                     {loading && <div>Loading...</div>}
                                     {suggestions.length > 0 && (
                                         <Box
@@ -253,10 +280,10 @@ const UserPosts = ({user, open, onClose}) => {
                                         >
                                             {suggestions.map((suggestion, index) => {
                                                 const style = suggestion.active
-                                                    ? {backgroundColor: "#a8dadc", cursor: "pointer", padding: "10px"}
-                                                    : {backgroundColor: "#fff", cursor: "pointer", padding: "10px"};
+                                                    ? { backgroundColor: "#a8dadc", cursor: "pointer", padding: "10px" }
+                                                    : { backgroundColor: "#fff", cursor: "pointer", padding: "10px" };
                                                 return (
-                                                    <Box {...getSuggestionItemProps(suggestion, {style})} key={index}>
+                                                    <Box {...getSuggestionItemProps(suggestion, { style })} key={index}>
                                                         {suggestion.description}
                                                     </Box>
                                                 );
@@ -267,34 +294,94 @@ const UserPosts = ({user, open, onClose}) => {
                             </div>
                         )}
                     </PlacesAutocomplete>
-                    <TextField
-                        name="capacity"
-                        label="Capacity"
-                        value={editData.capacity}
-                        onChange={handleEditChange}
-                        fullWidth
-                        sx={{marginBottom: 2, marginTop: 2}}
-                    />
-                    <FormControl fullWidth sx={{marginBottom: 2}}>
-                        <InputLabel>Venue Type</InputLabel>
-                        <Select name="venueType" value={editData.venueType} onChange={handleEditChange} required>
-                            <MenuItem value="Concert Hall">Concert Hall</MenuItem>
-                            <MenuItem value="Conference Center">Conference Center</MenuItem>
-                            <MenuItem value="Outdoor Space">Outdoor Space</MenuItem>
-                            <MenuItem value="Restaurant">Restaurant</MenuItem>
-                            <MenuItem value="Other">Other</MenuItem>
+
+                    <FormControl fullWidth sx={{ marginBottom: 2, marginTop: 2  }}>
+                        <InputLabel>Seating Style</InputLabel>
+                        <Select
+                            name="seatingType"
+                            value={editData.seatingType}
+                            onChange={handleEditChange}
+                            required
+                        >
+                            <MenuItem value="Cabaret">Cabaret</MenuItem>
+                            <MenuItem value="Theatre">Theatre</MenuItem>
+                            <MenuItem value="Boardroom">Boardroom</MenuItem>
+                            <MenuItem value="Banquet">Banquet</MenuItem>
+                            <MenuItem value="U-Shape">U-Shape</MenuItem>
+                            <MenuItem value="Classroom">Classroom</MenuItem>
                         </Select>
                     </FormControl>
+
                     <TextField
-                        name="description"
-                        label="Description"
-                        value={editData.description}
-                        onChange={handleEditChange}
-                        multiline
-                        rows={4}
+                        name="capacitySeated"
+                        label="Seated Capacity"
+                        value={editData.capacity.seated}
+                        onChange={(e) =>
+                            setEditData({ ...editData, capacity: { ...editData.capacity, seated: e.target.value } })
+                        }
                         fullWidth
-                        sx={{marginBottom: 2}}
+                        sx={{ marginBottom: 2 }}
                     />
+                    <TextField
+                        name="capacityStanding"
+                        label="Standing Capacity"
+                        value={editData.capacity.standing}
+                        onChange={(e) =>
+                            setEditData({ ...editData, capacity: { ...editData.capacity, standing: e.target.value } })
+                        }
+                        fullWidth
+                        sx={{ marginBottom: 2 }}
+                    />
+
+                    <TextField
+                        name="squareFootage"
+                        label="Square Footage"
+                        value={editData.squareFootage}
+                        onChange={handleEditChange}
+                        fullWidth
+                        sx={{ marginBottom: 2 }}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={editData.hasAVFacilities}
+                                onChange={(e) => setEditData({ ...editData, hasAVFacilities: e.target.checked })}
+                            />
+                        }
+                        label="Onsite AV Facilities Available"
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={editData.hasCatering.onSite}
+                                onChange={(e) =>
+                                    setEditData({
+                                        ...editData,
+                                        hasCatering: { ...editData.hasCatering, onSite: e.target.checked },
+                                    })
+                                }
+                            />
+                        }
+                        label="On-Site Catering"
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={editData.hasCatering.external}
+                                onChange={(e) =>
+                                    setEditData({
+                                        ...editData,
+                                        hasCatering: { ...editData.hasCatering, external: e.target.checked },
+                                    })
+                                }
+                            />
+                        }
+                        label="External Catering Allowed"
+                    />
+
                     <TextField
                         name="bookingEmail"
                         label="Booking Email"
@@ -302,10 +389,11 @@ const UserPosts = ({user, open, onClose}) => {
                         value={editData.bookingEmail}
                         onChange={handleEditChange}
                         fullWidth
-                        sx={{marginBottom: 2}}
+                        sx={{ marginBottom: 2 , marginTop: 2 }}
                     />
+
                     <input type="file" multiple onChange={handleImageChange} />
-                    <Box sx={{display: "flex", flexWrap: "wrap", marginTop: 2}}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", marginTop: 2 }}>
                         {editData.images.map((url, index) => (
                             <Box
                                 key={index}
@@ -322,22 +410,23 @@ const UserPosts = ({user, open, onClose}) => {
                                     alt={`img-${index}`}
                                     width="100%"
                                     height="100%"
-                                    style={{objectFit: "cover", borderRadius: "8px"}}
+                                    style={{ objectFit: "cover", borderRadius: "8px" }}
                                 />
                                 <IconButton
                                     onClick={() => handleRemoveImage(index)}
-                                    sx={{position: "absolute", top: 0, right: 0, padding: "2px", color: "red"}}
+                                    sx={{ position: "absolute", top: 0, right: 0, padding: "2px", color: "red" }}
                                 >
                                     <DeleteIcon />
                                 </IconButton>
                             </Box>
                         ))}
                     </Box>
+
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={handleEditSubmit}
-                        sx={{marginTop: 2, width: "100%", color: "white"}}
+                        sx={{ marginTop: 2, width: "100%", color: "white" }}
                     >
                         Save
                     </Button>
@@ -359,6 +448,18 @@ const UserPosts = ({user, open, onClose}) => {
                     </Button>
                 </Box>
             </Modal>
+
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                message={snackbarMessage}
+                action={
+                    <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                }
+            />
         </>
     );
 };

@@ -1,6 +1,24 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Input, LinearProgress, IconButton, Typography, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Input,
+  LinearProgress,
+  IconButton,
+  Typography,
+  MenuItem,
+  FormControlLabel,
+  Select,
+  FormControl,
+  InputLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Switch,
+} from "@mui/material";
 import { addVenue, uploadImage } from "../../utils/firestore";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from "@mui/icons-material/Close";
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from "react-places-autocomplete";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -8,21 +26,35 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const VenueForm = ({ user, onClose }) => {
     const [name, setName] = useState("");
     const [location, setLocation] = useState("");
-    const [capacity, setCapacity] = useState("");
-    const [venueType, setVenueType] = useState("");
-    const [customVenueType, setCustomVenueType] = useState(""); // State for custom venue type
+    const [seatingType, setSeatingType] = useState("");
+    const [capacity, setCapacity] = useState({ seated: "", standing: "" });
+    const [squareFootage, setSquareFootage] = useState("");
     const [description, setDescription] = useState("");
     const [bookingEmail, setBookingEmail] = useState("");
     const [images, setImages] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploadComplete, setUploadComplete] = useState(false);
+    const [hasAVFacilities, setHasAVFacilities] = useState(false);
+    const [hasCatering, setHasCatering] = useState({ onSite: false, external: false });
+    const [errors, setErrors] = useState({});
+
+    // Validation helper function
+    const validate = () => {
+        const newErrors = {};
+        if (!name) newErrors.name = "Venue Name is required";
+        if (!location) newErrors.location = "Location is required";
+        if (!bookingEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingEmail)) {
+            newErrors.bookingEmail = "Valid email is required";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!user) {
-            console.error("User not authenticated");
+        if (!validate()) {
             return;
         }
 
@@ -35,25 +67,31 @@ const VenueForm = ({ user, onClose }) => {
             const venue = {
                 name,
                 location,
+                seatingType,
                 capacity,
-                venueType: venueType === "Other" ? customVenueType : venueType, // Use custom venue type if "Other"
+                squareFootage,
                 description,
                 bookingEmail,
+                hasAVFacilities,
+                hasCatering,
                 images: imageUrls,
                 userId: user.uid,
             };
 
             await addVenue(venue);
 
+            // Reset form after submission
             setName("");
             setLocation("");
-            setCapacity("");
-            setVenueType("");
-            setCustomVenueType(""); // Reset custom venue type
+            setSeatingType("");
+            setCapacity({ seated: "", standing: "" });
+            setSquareFootage("");
             setDescription("");
             setBookingEmail("");
             setImages([]);
             setImagePreviews([]);
+            setHasAVFacilities(false);
+            setHasCatering({ onSite: false, external: false });
             setUploadComplete(true);
         } catch (error) {
             console.error("Error submitting venue: ", error);
@@ -62,7 +100,7 @@ const VenueForm = ({ user, onClose }) => {
             setTimeout(() => {
                 setUploadComplete(false);
                 onClose();
-            }, 2000); // Close drawer after 2 seconds
+            }, 2000);
         }
     };
 
@@ -83,21 +121,17 @@ const VenueForm = ({ user, onClose }) => {
         setImagePreviews(newPreviews);
     };
 
-    const handleSelect = async (address) => {
-        const results = await geocodeByAddress(address);
-        const latLng = await getLatLng(results[0]);
-        setLocation(address);
+    const handleSeatingTypeChange = (e) => {
+        setSeatingType(e.target.value);
+        setCapacity({ seated: "", standing: "" });
     };
 
-    const handleDescriptionChange = (e) => {
-        const words = e.target.value.split(/\s+/);
-        if (words.length <= 100) {
-            setDescription(e.target.value);
-        }
+    const handleCapacityChange = (e, key) => {
+        setCapacity({ ...capacity, [key]: e.target.value });
     };
 
     return (
-        <Box sx={{ width: 400, padding: 4 }}>
+        <Box sx={{ width: '100%', maxWidth: '600px', padding: 4 }}>
             <IconButton onClick={onClose} sx={{ alignSelf: "flex-end" }}>
                 <CloseIcon />
             </IconButton>
@@ -105,8 +139,20 @@ const VenueForm = ({ user, onClose }) => {
                 Add Venue
             </Typography>
             <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <TextField label="Venue Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                <PlacesAutocomplete value={location} onChange={setLocation} onSelect={handleSelect}>
+                <TextField
+                    label="Venue Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    error={!!errors.name}
+                    helperText={errors.name}
+                />
+                
+                <PlacesAutocomplete value={location} onChange={setLocation} onSelect={async (address) => {
+                    const results = await geocodeByAddress(address);
+                    const latLng = await getLatLng(results[0]);
+                    setLocation(address);
+                }}>
                     {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                         <div>
                             <TextField
@@ -115,93 +161,127 @@ const VenueForm = ({ user, onClose }) => {
                                     placeholder: "Search Places ...",
                                     fullWidth: true,
                                     required: true,
+                                    error: !!errors.location,
+                                    helperText: errors.location,
                                 })}
                             />
-                            <Box sx={{ position: "relative", zIndex: 1000 }}>
-                                {loading && <div>Loading...</div>}
-                                {suggestions.length > 0 && (
-                                    <Box
-                                        sx={{
-                                            border: "1px solid #ddd",
-                                            borderRadius: "4px",
-                                            marginTop: 1,
-                                            backgroundColor: "#fff",
-                                        }}
-                                    >
-                                        {suggestions.map((suggestion, index) => {
-                                            const style = suggestion.active
-                                                ? { backgroundColor: "#a8dadc", cursor: "pointer", padding: "10px" }
-                                                : { backgroundColor: "#fff", cursor: "pointer", padding: "10px" };
-                                            return (
-                                                <Box {...getSuggestionItemProps(suggestion, { style })} key={index}>
-                                                    {suggestion.description}
-                                                </Box>
-                                            );
-                                        })}
-                                    </Box>
-                                )}
-                            </Box>
+                            {loading && <div>Loading...</div>}
+                            {suggestions.length > 0 && (
+                                <Box sx={{ position: 'relative', zIndex: 1000, backgroundColor: "#fff", border: "1px solid #ddd" }}>
+                                    {suggestions.map((suggestion, index) => (
+                                        <Box {...getSuggestionItemProps(suggestion)} key={index} sx={{ padding: "10px", cursor: 'pointer' }}>
+                                            {suggestion.description}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            )}
                         </div>
                     )}
                 </PlacesAutocomplete>
-                <TextField label="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
+
+                <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                    <InputLabel>Seating Style</InputLabel>
+                    <Select
+                        value={seatingType}
+                        onChange={handleSeatingTypeChange}
+                        required
+                    >
+                        <MenuItem value="Cabaret">Cabaret</MenuItem>
+                        <MenuItem value="Theatre">Theatre</MenuItem>
+                        <MenuItem value="Boardroom">Boardroom</MenuItem>
+                        <MenuItem value="Banquet">Banquet</MenuItem>
+                        <MenuItem value="U-Shape">U-Shape</MenuItem>
+                        <MenuItem value="Classroom">Classroom</MenuItem>
+                    </Select>
+                </FormControl>
+
+                {seatingType && (
+                    <>
+                        <TextField
+                            label={`Seated Capacity for ${seatingType} Style`}
+                            value={capacity.seated}
+                            onChange={(e) => handleCapacityChange(e, 'seated')}
+                            fullWidth
+                            sx={{ marginBottom: 2 }}
+                        />
+                        <TextField
+                            label={`Standing Capacity for ${seatingType} Style`}
+                            value={capacity.standing}
+                            onChange={(e) => handleCapacityChange(e, 'standing')}
+                            fullWidth
+                            sx={{ marginBottom: 2 }}
+                        />
+                    </>
+                )}
+
+                <TextField
+                    label="Square Footage"
+                    value={squareFootage}
+                    onChange={(e) => setSquareFootage(e.target.value)}
+                    fullWidth
+                    sx={{ marginBottom: 2 }}
+                />
+
+                <TextField
+                    label="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    fullWidth
+                    multiline
+                    rows={4}
+                    sx={{ marginBottom: 2 }}
+                />
+
+                <FormControlLabel
+                    control={<Switch checked={hasAVFacilities} onChange={(e) => setHasAVFacilities(e.target.checked)} />}
+                    label="Onsite AV Facilities Available"
+                />
+
+                <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography>Catering Services</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <FormControlLabel
+                            control={<Switch checked={hasCatering.onSite} onChange={(e) => setHasCatering({ ...hasCatering, onSite: e.target.checked })} />}
+                            label="On-Site Catering"
+                        />
+                        <FormControlLabel
+                            control={<Switch checked={hasCatering.external} onChange={(e) => setHasCatering({ ...hasCatering, external: e.target.checked })} />}
+                            label="External Catering Allowed"
+                        />
+                    </AccordionDetails>
+                </Accordion>
+
                 <TextField
                     label="Booking Contact Email"
                     type="email"
                     value={bookingEmail}
                     onChange={(e) => setBookingEmail(e.target.value)}
                     required
+                    error={!!errors.bookingEmail}
+                    helperText={errors.bookingEmail}
                 />
-                <FormControl fullWidth>
-                    <InputLabel>Venue Type</InputLabel>
-                    <Select value={venueType} onChange={(e) => setVenueType(e.target.value)} required>
-                        <MenuItem value="Awards">Awards</MenuItem>
-                        <MenuItem value="Conference">Conference</MenuItem>
-                        <MenuItem value="Leadership Lunch">Leadership Lunch</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
-                    </Select>
-                </FormControl>
-                {venueType === "Other" && (
-                    <TextField
-                        label="Custom Venue Type"
-                        value={customVenueType}
-                        onChange={(e) => setCustomVenueType(e.target.value)}
-                        required
-                    />
-                )}
-                <TextField
-                    label="Description"
-                    value={description}
-                    onChange={handleDescriptionChange}
-                    multiline
-                    rows={4}
-                    inputProps={{ maxLength: 500 }}
-                    helperText={`${description.split(/\s+/).length}/100 words`}
-                    required
-                />
-                <Input type="file" inputProps={{ multiple: true }} onChange={handleImageChange} required sx={{ marginBottom: 2 }} />
-                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2 }}>
+
+                <Input type="file" inputProps={{ multiple: true }} onChange={handleImageChange} sx={{ marginBottom: 2 }} />
+
+                <Box sx={{ display: "flex", gap: 2
+
+, flexWrap: "wrap", marginTop: 2 }}>
                     {imagePreviews.map((src, index) => (
                         <Box key={index} sx={{ position: "relative", width: "100px", height: "100px" }}>
-                            <img
-                                src={src}
-                                alt={`preview-${index}`}
-                                width="100"
-                                height="100"
-                                style={{ objectFit: "cover", borderRadius: "8px" }}
-                            />
-                            <IconButton
-                                onClick={() => handleRemoveImage(index)}
-                                sx={{ position: "absolute", top: 0, right: 0, padding: "2px", color: "red" }}
-                            >
+                            <img src={src} alt={`preview-${index}`} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }} />
+                            <IconButton onClick={() => handleRemoveImage(index)} sx={{ position: "absolute", top: 0, right: 0, padding: "2px", color: "red" }}>
                                 <DeleteIcon />
                             </IconButton>
                         </Box>
                     ))}
                 </Box>
-                <Button type="submit" variant="contained" color="primary" sx={{ color: "white" }}>
+
+                <Button type="submit" variant="contained" color="primary">
                     Add Venue
                 </Button>
+
                 {loading && <LinearProgress sx={{ marginTop: 2 }} />}
                 {uploadComplete && <Typography variant="body1" color="green" sx={{ marginTop: 2 }}>Upload Complete</Typography>}
             </Box>

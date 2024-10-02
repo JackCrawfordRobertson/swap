@@ -2,7 +2,7 @@
 import React, { useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Drawer } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
-import HomeIcon from '@mui/icons-material/Home';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
@@ -13,6 +13,7 @@ import UserPosts from './UserPosts';
 import { logout } from '../../utils/auth';
 import { AuthContext } from '../../context/AuthContext';
 import Link from 'next/link';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 const swapLogo = '/Swap.svg';
 const iceLogo = '/ICELogo.svg';
@@ -133,14 +134,14 @@ export default function NavigationBar() {
                                         </StyledButton>
                                         <StyledButton
                                             variant="outlined"
-                                            startIcon={<HomeIcon style={{ color: 'gray' }} />}
+                                            startIcon={<DescriptionIcon style={{ color: 'gray' }} />}
                                             onClick={handlePostsOpen}
                                         >
                                             My Posts
                                         </StyledButton>
                                         <StyledButton
                                             variant="contained"
-                                            startIcon={<HomeIcon style={{ color: 'white' }} />}
+                                            startIcon={<AddBusinessIcon style={{ color: 'white' }} />}
                                             sx={{ backgroundColor: '#5fa7d9', color: '#fff', marginLeft: 2 }}
                                             onClick={handleOpen}
                                         >
