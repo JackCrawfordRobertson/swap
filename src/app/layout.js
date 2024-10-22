@@ -1,6 +1,6 @@
 // app/layout.js
 
-import './styles/globals.css';
+import '../styles/globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import ThemeProviderWrapper from './components/ThemeProviderWrapper'; // Import the wrapper
 

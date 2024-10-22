@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { getVenues } from "../../utils/firestore";
-import NavigationBar from "../components/NavigationBar";
+import NavigationLogic from "@/app/components/NavBar/NavigationLogic";
 import { AuthContext, AuthProvider } from "../../context/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -131,7 +131,7 @@ const ResultsContent = () => {
     return (
         <>
             <div style={{ margin: "1em" }}>
-                <NavigationBar user={user} />
+                <NavigationLogic user={user} />
             </div>
 
             {/* Results Grid */}

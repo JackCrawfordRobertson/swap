@@ -1,6 +1,6 @@
-"use client"; // Ensure the directive is in lowercase
+// src/components/CategorySelectUI.js
 
-import React, { useState, useEffect, useContext } from "react";
+import React from "react";
 import {
     Box,
     FormControl,
@@ -21,87 +21,24 @@ import PeopleIcon from "@mui/icons-material/People";
 import PlaceIcon from "@mui/icons-material/Place";
 import SearchIcon from "@mui/icons-material/Search";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { AuthContext } from "@/context/AuthContext";
-import { getVenues } from "@/utils/firestore";
 
-export default function CategorySelect() {
-    const [venueType, setVenueType] = useState(""); // Changed from eventType to venueType
-    const [guests, setGuests] = useState("");
-    const [location, setLocation] = useState("");
-    const [cities, setCities] = useState([]);
-    const [venueTypes, setVenueTypes] = useState([]); // Changed from eventTypes to venueTypes
-    const [openDialog, setOpenDialog] = useState(false);
+const SearchUI = ({
+    venueType,
+    guests,
+    location,
+    cities,
+    venueTypes,
+    openDialog,
+    isSearchDisabled,
+    handleVenueTypeChange,
+    handleGuestsChange,
+    handleLocationChange,
+    handleSearch,
+    handleInteraction,
+    handleDialogClose,
+}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const { user } = useContext(AuthContext);
-
-    useEffect(() => {
-        const fetchCitiesAndVenueTypes = async () => { // Updated naming
-            try {
-                const venues = await getVenues();
-                const uniqueCities = new Set();
-                const uniqueVenueTypes = new Set(); // Changed from uniqueEventTypes
-
-                for (const venue of venues) {
-                    if (venue.location) {
-                        uniqueCities.add(venue.location);
-                    }
-                    if (venue.venueType) { // Changed from seatingType to venueType
-                        uniqueVenueTypes.add(venue.venueType); // Changed from eventType
-                    }
-                }
-
-                setCities(Array.from(uniqueCities));
-                setVenueTypes(Array.from(uniqueVenueTypes)); // Changed from setEventTypes
-            } catch (error) {
-                console.error("Error fetching venues:", error);
-            }
-        };
-
-        fetchCitiesAndVenueTypes(); // Updated function name
-    }, []);
-
-    const handleVenueTypeChange = (event) => { // Changed from handleEventTypeChange
-        setVenueType(event.target.value); // Changed to venueType
-    };
-
-    const handleGuestsChange = (event) => {
-        const value = event.target.value;
-        if (value === "" || /^\d*$/.test(value)) {
-            setGuests(value);
-        }
-    };
-
-    const handleLocationChange = (event) => {
-        setLocation(event.target.value);
-    };
-
-    const handleSearch = () => {
-        if (user) {
-            // Construct the URL with query parameters
-            const queryParams = new URLSearchParams({
-                venueType, // Changed from eventType
-                guests,
-                location,
-            }).toString();
-            window.location.href = `/results?${queryParams}`;
-        } else {
-            setOpenDialog(true); // Show popup if user is not logged in
-        }
-    };
-
-    const handleDialogClose = () => {
-        setOpenDialog(false);
-    };
-
-    const handleInteraction = (event) => {
-        if (!user) {
-            event.preventDefault();
-            setOpenDialog(true);
-        }
-    };
-
-    const isSearchDisabled = !venueType && !guests && !location;
 
     return (
         <>
@@ -124,13 +61,13 @@ export default function CategorySelect() {
                     variant="outlined"
                     sx={{ flex: 1 }}
                     onMouseDown={handleInteraction}
-                    disabled={venueTypes.length === 0} // Changed from eventTypes
+                    disabled={venueTypes.length === 0}
                 >
-                    <InputLabel>Venue Type</InputLabel> {/* Updated label */}
+                    <InputLabel>Venue Type</InputLabel>
                     <Select
-                        value={venueType} // Changed to venueType
+                        value={venueType}
                         onChange={handleVenueTypeChange}
-                        label="Venue Type" // Updated label
+                        label="Venue Type"
                         startAdornment={
                             <InputAdornment position="start">
                                 <EventIcon style={{ color: "gray" }} />
@@ -138,7 +75,7 @@ export default function CategorySelect() {
                         }
                         sx={{ color: "black" }}
                     >
-                        {venueTypes.map((type, index) => ( // Changed from eventTypes
+                        {venueTypes.map((type, index) => (
                             <MenuItem key={index} value={type}>
                                 {type}
                             </MenuItem>
@@ -206,7 +143,6 @@ export default function CategorySelect() {
                 </Button>
             </Box>
 
-            {/* Dialog popup for unauthenticated users */}
             <Dialog open={openDialog} onClose={handleDialogClose}>
                 <DialogTitle>
                     <Typography variant="h4" sx={{ fontWeight: "bold", color: "#000" }}>
@@ -215,8 +151,7 @@ export default function CategorySelect() {
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Get
-                        Started" button and make magic happen!
+                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Get Started" button and make magic happen!
                     </Typography>
                     <Typography variant="body2" sx={{ fontStyle: "italic", color: "#757575" }}>
                         (It only takes a few seconds, and we promise it’s worth it!)
@@ -230,4 +165,6 @@ export default function CategorySelect() {
             </Dialog>
         </>
     );
-}
+};
+
+export default SearchUI;

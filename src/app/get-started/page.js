@@ -1,9 +1,9 @@
 // src/pages/get-started.js
 import React from 'react';
-import GetStartedScreen from '../components/GetStartedScreen';
+import LogInLogic from '@/app/components/logIn/LogInLogic';
 
 const GetStarted = () => {
-  return <GetStartedScreen />;
+  return <LogInLogic />;
 };
 
 export default GetStarted;

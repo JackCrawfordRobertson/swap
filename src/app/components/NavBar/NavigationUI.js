@@ -1,6 +1,4 @@
-"use client"; // Ensure the directive is in lowercase
-
-import React, { useState, useContext } from 'react';
+import React from 'react';
 import {
   AppBar,
   Toolbar,
@@ -16,17 +14,14 @@ import PersonIcon from '@mui/icons-material/Person';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import MenuIcon from '@mui/icons-material/Menu';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { styled } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import VenueForm from './VenueForm';
-import UserPosts from './UserPosts';
-import { logout } from '../../utils/auth';
-import { AuthContext } from '../../context/AuthContext';
 import Link from 'next/link';
-import DescriptionIcon from '@mui/icons-material/Description';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image'; // Import next/image for optimized images
+import Image from 'next/image';
+import VenueFormLogic from '@/app/components/VenueForm/VenueFormLogic';
+import UserPostsLogic from '@/app/components/UserPosts/UserPostsLogic';
 
 const swapLogo = '/Swap.svg';
 const iceLogo = '/ICELogo.svg';
@@ -34,7 +29,7 @@ const iceLogo = '/ICELogo.svg';
 const StyledAppBar = styled(AppBar)({
   backgroundColor: '#fff',
   borderRadius: '8px',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  boxShadow: "0 1px 40px rgba(0,0,0,0.1)",
 });
 
 const NavContainer = styled(Box)({
@@ -54,47 +49,21 @@ const StyledButton = styled(Button)({
   },
 });
 
-export default function NavigationBar() {
-  const [open, setOpen] = useState(false);
-  const [openPosts, setOpenPosts] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+const NavigationUI = ({
+  user,
+  open,
+  openPosts,
+  anchorEl,
+  handleOpen,
+  handleClose,
+  handlePostsOpen,
+  handlePostsClose,
+  handleMenuOpen,
+  handleMenuClose,
+  handleLogout,
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const { user } = useContext(AuthContext);
-  const router = useRouter();
-
-  const handleOpen = () => {
-    if (user) {
-      setOpen(true);
-    } else {
-      alert('You must be logged in to list a venue.');
-    }
-  };
-
-  const handleClose = () => setOpen(false);
-
-  const handlePostsOpen = () => {
-    if (user) {
-      setOpenPosts(true);
-    } else {
-      alert('You must be logged in to view your posts.');
-    }
-  };
-
-  const handlePostsClose = () => setOpenPosts(false);
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
 
   return (
     <>
@@ -103,7 +72,6 @@ export default function NavigationBar() {
           {isMobile ? (
             <>
               <Link href="/">
-                {/* Use next/image for optimized images */}
                 <Image
                   src={swapLogo}
                   alt="Swap Logo"
@@ -191,6 +159,7 @@ export default function NavigationBar() {
           )}
         </Toolbar>
       </StyledAppBar>
+
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         {user
           ? [
@@ -210,12 +179,16 @@ export default function NavigationBar() {
               </MenuItem>,
             ]}
       </Menu>
+
       <Drawer anchor="right" open={open} onClose={handleClose} PaperProps={{ sx: { width: '400px' } }}>
-        <VenueForm user={user} open={open} onClose={handleClose} />
+        <VenueFormLogic user={user} open={open} onClose={handleClose} />
       </Drawer>
+
       <Drawer anchor="right" open={openPosts} onClose={handlePostsClose} PaperProps={{ sx: { width: '400px' } }}>
-        <UserPosts user={user} open={openPosts} onClose={handlePostsClose} />
+        <UserPostsLogic user={user} open={openPosts} onClose={handlePostsClose} />
       </Drawer>
     </>
   );
-}
+};
+
+export default NavigationUI;
