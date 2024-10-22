@@ -12,20 +12,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
-    console.log('Initializing AuthContext listener.');
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        console.log('User is authenticated with UID:', currentUser.uid);
         setUser(currentUser);
       } else {
-        console.log('User is not authenticated.');
         setUser(null);
       }
       setLoading(false); // Set loading to false when auth state is known
     });
 
     return () => {
-      console.log('Unsubscribing AuthContext listener.');
       unsubscribe();
     };
   }, []);

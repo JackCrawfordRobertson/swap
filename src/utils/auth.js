@@ -26,7 +26,6 @@ const allowedDomains = ['aviva.com', 'ice-hub.biz', 'ya-ya.co.uk'];
  */
 const isAllowedDomain = (email) => {
   const emailDomain = email.split('@')[1]?.toLowerCase();
-  console.log(`Checking if email domain '${emailDomain}' is allowed.`);
   return allowedDomains.includes(emailDomain);
 };
 
@@ -39,16 +38,11 @@ const isAllowedDomain = (email) => {
  */
 const signInWithEmail = async (email, password) => {
   try {
-    console.log(`Signing in user with Email: ${email}`);
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Removed email verification check
-
-    console.log('User signed in successfully:', user.uid);
     return user;
   } catch (error) {
-    console.error('Error signing in with email:', error);
     // Customize error messages based on error codes
     switch (error.code) {
       case 'auth/user-not-found':
@@ -75,7 +69,6 @@ const signInWithEmail = async (email, password) => {
  */
 const registerWithEmail = async (email, password, username) => {
   try {
-    console.log(`Registering user with Email: ${email}, Username: ${username}`);
     // Trim inputs to remove unnecessary whitespace
     email = email.trim().toLowerCase();
     username = username.trim();
@@ -83,51 +76,35 @@ const registerWithEmail = async (email, password, username) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log('Invalid email format during registration.');
       throw new Error('Please enter a valid email address.');
     }
 
     // Check for allowed domains
     if (!isAllowedDomain(email)) {
-      console.log('Email domain not allowed during registration:', email);
-      throw new Error(
-        `Email domain not allowed. Please use one of the following domains: ${allowedDomains.join(
-          ', '
-        )}.`
-      );
+      throw new Error('Email domain not allowed.');
     }
 
     // Check if username already exists
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('username', '==', username));
-    console.log('Checking if username already exists in Firestore.');
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      console.log('Username already taken:', username);
       throw new Error('Username already taken. Please choose another.');
     }
 
     // Create user with email and password
-    console.log('Creating new user in Firebase Auth.');
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    console.log('User created with UID:', user.uid);
-
-    // Removed sending email verification
 
     // Store additional user information in Firestore
-    console.log('Storing user profile in Firestore.');
     await setDoc(doc(db, 'users', user.uid), {
       username: username,
       email: email,
       createdAt: new Date(),
-      // Removed emailVerified field as it's no longer necessary
     });
-    console.log('User profile stored successfully in Firestore.');
 
     return user;
   } catch (error) {
-    console.error('Error registering with email:', error);
     // Customize error messages based on error codes
     switch (error.code) {
       case 'auth/email-already-in-use':
@@ -150,21 +127,17 @@ const registerWithEmail = async (email, password, username) => {
  */
 const resetPassword = async (email) => {
   try {
-    console.log(`Sending password reset email to: ${email}`);
     // Trim and lowercase the email
     email = email.trim().toLowerCase();
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      console.log('Invalid email format during password reset.');
       throw new Error('Please enter a valid email address.');
     }
 
     await sendPasswordResetEmail(auth, email);
-    console.log('Password reset email sent successfully.');
   } catch (error) {
-    console.error('Error sending password reset email:', error);
     // Customize error messages based on error codes
     switch (error.code) {
       case 'auth/user-not-found':
@@ -184,11 +157,8 @@ const resetPassword = async (email) => {
  */
 const logout = async () => {
   try {
-    console.log('Signing out user.');
     await signOut(auth);
-    console.log('User signed out successfully.');
   } catch (error) {
-    console.error('Error signing out:', error);
     alert(`Error signing out: ${error.message}`);
     throw error;
   }
