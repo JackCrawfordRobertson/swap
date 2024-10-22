@@ -1,12 +1,24 @@
 // src/app/components/GetStartedScreen.js
+
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Box, Typography, TextField, Grid, Alert } from '@mui/material';
+import {
+  Button,
+  Box,
+  Typography,
+  TextField,
+  Grid,
+  Alert,
+  CircularProgress,
+  Link,
+} from '@mui/material';
 import { AuthContext } from '../../context/AuthContext';
-import { signInWithGoogle, signInWithEmail, registerWithEmail } from '../../utils/auth';
+import { signInWithEmail, registerWithEmail, resetPassword } from '../../utils/auth';
 import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+// Styled Components
 const BackgroundBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -14,7 +26,6 @@ const BackgroundBox = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   minHeight: '100vh',
   textAlign: 'center',
-  backgroundImage: 'url(/background-image.jpg)', // Replace with your background image
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   padding: theme.spacing(4),
@@ -35,66 +46,179 @@ const ContentBox = styled(Box)(({ theme }) => ({
   zIndex: 1,
   padding: theme.spacing(4),
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
   color: theme.palette.text.primary,
   boxShadow: theme.shadows[3],
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#5fa7d9',
-  color: theme.palette.common.white,
-  '&:hover': {
-    backgroundColor: '#4a90c0',
-  },
-  marginRight: theme.spacing(2),
+  maxWidth: 400,
+  width: '100%',
 }));
 
 export default function GetStartedScreen() {
   const { user } = useContext(AuthContext);
   const router = useRouter();
+
+  // Mode can be 'login', 'register', 'reset'
+  const [mode, setMode] = useState('login');
+
+  // Common States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Register-specific State
+  const [username, setUsername] = useState('');
+
+  // Error and Loading States
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Validation States
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
 
   useEffect(() => {
+    console.log('AuthContext User:', user);
     if (user) {
+      console.log('User is authenticated. Redirecting to home page.');
       router.push('/');
     }
   }, [user, router]);
 
-  const handleSignInWithGoogle = async () => {
-    try {
-      setError(null);
-      await signInWithGoogle();
-      router.push('/');
-    } catch (error) {
-      setError(error.message);
-    }
+  // Handlers for Input Changes with Validation
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    console.log('Email Input Changed:', value);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setIsEmailValid(emailRegex.test(value));
+    console.log('Is Email Valid:', emailRegex.test(value));
   };
 
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    console.log('Password Input Changed:', value);
+  };
+
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+    console.log('Username Input Changed:', value);
+
+    // Username must be at least 3 characters
+    setIsUsernameValid(value.length >= 3);
+    console.log('Is Username Valid:', value.length >= 3);
+  };
+
+  // Handlers for Modes
+  const switchToRegister = () => {
+    console.log('Switching to Register Mode');
+    setError(null);
+    setMode('register');
+  };
+
+  const switchToLogin = () => {
+    console.log('Switching to Login Mode');
+    setError(null);
+    setMode('login');
+  };
+
+  const switchToReset = () => {
+    console.log('Switching to Reset Password Mode');
+    setError(null);
+    setMode('reset');
+  };
+
+  // Handler for Login
   const handleSignInWithEmail = async () => {
     try {
+      console.log('Attempting to sign in with Email:', email);
       setError(null);
-      if (!email) throw new Error("Email is required");
-      if (!password) throw new Error("Password is required");
+      setLoading(true);
+      if (!email) throw new Error('Email is required');
+      if (!password) throw new Error('Password is required');
 
-      await signInWithEmail(email, password);
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error('Please enter a valid email address.');
+      }
+
+      const signedInUser = await signInWithEmail(email, password);
+      console.log('Sign-in successful:', signedInUser);
+      toast.success('Login successful! Redirecting...');
       router.push('/');
     } catch (error) {
+      console.error('Error during sign-in:', error);
       setError(error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+      console.log('Sign-in process completed.');
     }
   };
 
+  // Handler for Registration
   const handleRegisterWithEmail = async () => {
     try {
+      console.log('Attempting to register with Email:', email, 'Username:', username);
       setError(null);
-      if (!email) throw new Error("Email is required");
-      if (!password) throw new Error("Password is required");
+      setLoading(true);
+      if (!username) throw new Error('Username is required');
+      if (!email) throw new Error('Email is required');
+      if (!password) throw new Error('Password is required');
 
-      await registerWithEmail(email, password);
-      router.push('/');
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error('Please enter a valid email address.');
+      }
+
+      const registeredUser = await registerWithEmail(email, password, username);
+      console.log('Registration successful:', registeredUser);
+      toast.success('Registration successful! Please verify your email before logging in.');
+      setMode('login');
+      setEmail('');
+      setPassword('');
+      setUsername('');
     } catch (error) {
+      console.error('Error during registration:', error);
       setError(error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+      console.log('Registration process completed.');
+    }
+  };
+
+  // Handler for Password Reset
+  const handleResetPassword = async () => {
+    try {
+      console.log('Attempting to reset password for Email:', email);
+      setError(null);
+      setLoading(true);
+      if (!email) throw new Error('Email is required');
+
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error('Please enter a valid email address.');
+      }
+
+      await resetPassword(email);
+      console.log('Password reset email sent to:', email);
+      toast.success('Password reset email sent! Please check your inbox.');
+      setMode('login');
+      setEmail('');
+      setPassword('');
+    } catch (error) {
+      console.error('Error during password reset:', error);
+      setError(error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+      console.log('Password reset process completed.');
     }
   };
 
@@ -105,61 +229,180 @@ export default function GetStartedScreen() {
         <Typography variant="h4" gutterBottom>
           Welcome to Swap
         </Typography>
-        <Typography variant="body1" gutterBottom>
-          Please log in to continue.
-        </Typography>
-        <StyledButton
-          variant="outlined"
-          startIcon={<ArrowForwardIosIcon style={{ color: 'white' }} />}
-          onClick={handleSignInWithGoogle}
-          sx={{ color: 'white', margin: '1em' }}
-        >
-          Login with Google
-        </StyledButton>
+
+        {/* Mode-specific Subheading */}
+        {mode === 'login' && (
+          <Typography variant="body1" gutterBottom>
+            Please log in to continue.
+          </Typography>
+        )}
+        {mode === 'register' && (
+          <Typography variant="body1" gutterBottom>
+            Create a new account.
+          </Typography>
+        )}
+        {mode === 'reset' && (
+          <Typography variant="body1" gutterBottom>
+            Reset your password.
+          </Typography>
+        )}
+
+        {/* Display error message */}
         {error && <Alert severity="error">{error}</Alert>}
+
         <Grid container spacing={2} justifyContent="center">
+          {/* Username Field - Only in Register Mode */}
+          {mode === 'register' && (
+            <Grid item xs={12}>
+              <TextField
+                label="Username"
+                variant="outlined"
+                fullWidth
+                value={username}
+                onChange={handleUsernameChange}
+                error={(!!error && error.toLowerCase().includes('username')) || !isUsernameValid}
+                helperText={
+                  error && error.toLowerCase().includes('username')
+                    ? error
+                    : !isUsernameValid
+                    ? 'Username must be at least 3 characters long.'
+                    : ''
+                }
+              />
+            </Grid>
+          )}
+
+          {/* Email Field */}
           <Grid item xs={12}>
             <TextField
               label="Email"
               variant="outlined"
               fullWidth
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={!!error}
-              helperText={error && "Please enter a valid email"}
+              onChange={handleEmailChange}
+              error={!!error && (error.toLowerCase().includes('email domain') || !isEmailValid)}
+              helperText={
+                !!error &&
+                (error.toLowerCase().includes('email domain') || !isEmailValid)
+                  ? error.toLowerCase().includes('email domain')
+                    ? error
+                    : 'Please enter a valid email address.'
+                  : ''
+              }
             />
           </Grid>
+
+          {/* Password Field - Not in Reset Mode */}
+          {mode !== 'reset' && (
+            <Grid item xs={12}>
+              <TextField
+                label="Password"
+                type="password"
+                variant="outlined"
+                fullWidth
+                value={password}
+                onChange={handlePasswordChange}
+                error={
+                  !!error &&
+                  (error.toLowerCase().includes('password') || error.toLowerCase().includes('sign in'))
+                }
+                helperText={
+                  !!error &&
+                  (error.toLowerCase().includes('password') || error.toLowerCase().includes('sign in'))
+                    ? error
+                    : ''
+                }
+              />
+            </Grid>
+          )}
+
+          {/* Submit Button */}
           <Grid item xs={12}>
-            <TextField
-              label="Password"
-              type="password"
-              variant="outlined"
-              fullWidth
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={!!error}
-              helperText={error && "Please enter your password"}
-            />
+            {mode === 'login' && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSignInWithEmail}
+                sx={{ color: 'white', margin: '0.5em 0' }}
+                fullWidth
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Login with Email'}
+              </Button>
+            )}
+
+            {mode === 'register' && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleRegisterWithEmail}
+                sx={{ color: 'white', margin: '0.5em 0' }}
+                fullWidth
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Register with Email'}
+              </Button>
+            )}
+
+            {mode === 'reset' && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleResetPassword}
+                sx={{ color: 'white', margin: '0.5em 0' }}
+                fullWidth
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Send Password Reset Email'}
+              </Button>
+            )}
           </Grid>
+
+          {/* Mode-specific Links */}
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSignInWithEmail}
-              sx={{ color: 'white', margin: '0.5em' }}
-            >
-              Login with Email
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleRegisterWithEmail}
-              sx={{ margin: '0.5em' }}
-            >
-              Register with Email
-            </Button>
+            {mode === 'login' && (
+              <Box>
+                <Typography variant="body2">
+                  Don't have an account?{' '}
+                  <Link href="#" onClick={switchToRegister}>
+                    Register here
+                  </Link>
+                </Typography>
+                <Typography variant="body2">
+                  Forgot your password?{' '}
+                  <Link href="#" onClick={switchToReset}>
+                    Reset Password
+                  </Link>
+                </Typography>
+              </Box>
+            )}
+
+            {mode === 'register' && (
+              <Box>
+                <Typography variant="body2">
+                  Already have an account?{' '}
+                  <Link href="#" onClick={switchToLogin}>
+                    Login here
+                  </Link>
+                </Typography>
+              </Box>
+            )}
+
+            {mode === 'reset' && (
+              <Box>
+                <Typography variant="body2">
+                  Remembered your password?{' '}
+                  <Link href="#" onClick={switchToLogin}>
+                    Login here
+                  </Link>
+                </Typography>
+              </Box>
+            )}
           </Grid>
         </Grid>
+
+        {/* Toast Container for Notifications */}
+        <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
       </ContentBox>
     </BackgroundBox>
   );

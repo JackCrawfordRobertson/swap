@@ -1,4 +1,3 @@
-//jsconfig.json
 {
   "compilerOptions": {
     "baseUrl": ".",
@@ -6,5 +5,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "pages/api/geocode.js"]
+  "include": ["src",  "pages/get-started.js", "pages/index.js", "pages/layout.js", "pages/results.js"]
 }

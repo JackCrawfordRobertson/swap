@@ -1,21 +1,37 @@
+// src/components/CategorySelect.js
+
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, FormControl, InputLabel, TextField, InputAdornment, Button, MenuItem, Select, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  TextField,
+  InputAdornment,
+  Button,
+  MenuItem,
+  Select,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+} from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
 import PeopleIcon from '@mui/icons-material/People';
 import PlaceIcon from '@mui/icons-material/Place';
 import SearchIcon from '@mui/icons-material/Search';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import { getCityFromAddress } from '@/utils/geocode';
-import { AuthContext } from '@/context/AuthContext'; // Import AuthContext
+import { AuthContext } from '@/context/AuthContext';
+import { getVenues } from '@/utils/firestore';
 
-export default function CategorySelect({ category, handleCategoryChange, venues }) {
+export default function CategorySelect() {
   const [eventType, setEventType] = useState('');
   const [guests, setGuests] = useState('');
   const [location, setLocation] = useState('');
   const [cities, setCities] = useState([]);
   const [eventTypes, setEventTypes] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false); // State to control popup
+  const [openDialog, setOpenDialog] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const router = useRouter();
@@ -25,27 +41,31 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
 
   useEffect(() => {
     const fetchCitiesAndEventTypes = async () => {
-      const uniqueCities = new Set();
-      const uniqueEventTypes = new Set();
-      for (const venue of venues) {
-        try {
-          const city = await getCityFromAddress(venue.location);
-          if (city) {
-            uniqueCities.add(city);
+      try {
+        // Fetch venues from Firestore
+        const venues = await getVenues();
+        const uniqueCities = new Set();
+        const uniqueEventTypes = new Set();
+
+        for (const venue of venues) {
+          // Use the city field directly from the venue document
+          if (venue.location) {
+            uniqueCities.add(venue.location);
           }
-          if (venue.venueType) {
-            uniqueEventTypes.add(venue.venueType);
+          if (venue.seatingType) {
+            uniqueEventTypes.add(venue.seatingType);
           }
-        } catch (error) {
-          console.error(error);
         }
+
+        setCities(Array.from(uniqueCities));
+        setEventTypes(Array.from(uniqueEventTypes));
+      } catch (error) {
+        console.error('Error fetching venues:', error);
       }
-      setCities(Array.from(uniqueCities));
-      setEventTypes(Array.from(uniqueEventTypes));
     };
 
     fetchCitiesAndEventTypes();
-  }, [venues]);
+  }, []);
 
   const handleEventTypeChange = (event) => {
     setEventType(event.target.value);
@@ -77,6 +97,13 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
     setOpenDialog(false);
   };
 
+  const handleInteraction = (event) => {
+    if (!user) {
+      event.preventDefault();
+      setOpenDialog(true);
+    }
+  };
+
   const isSearchDisabled = !eventType && !guests && !location;
 
   return (
@@ -96,7 +123,12 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
           marginBottom: 4,
         }}
       >
-        <FormControl variant="outlined" sx={{ flex: 1 }}>
+        <FormControl
+          variant="outlined"
+          sx={{ flex: 1 }}
+          onMouseDown={handleInteraction}
+          disabled={eventTypes.length === 0}
+        >
           <InputLabel>Event Type</InputLabel>
           <Select
             value={eventType}
@@ -117,7 +149,7 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
           </Select>
         </FormControl>
 
-        <FormControl variant="outlined" sx={{ flex: 1 }}>
+        <FormControl variant="outlined" sx={{ flex: 1 }} onMouseDown={handleInteraction}>
           <TextField
             value={guests}
             onChange={handleGuestsChange}
@@ -128,13 +160,18 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
                   <PeopleIcon style={{ color: 'gray' }} />
                 </InputAdornment>
               ),
-              style: { color: 'black' }
+              style: { color: 'black' },
             }}
             fullWidth
           />
         </FormControl>
 
-        <FormControl variant="outlined" sx={{ flex: 1 }}>
+        <FormControl
+          variant="outlined"
+          sx={{ flex: 1 }}
+          onMouseDown={handleInteraction}
+          disabled={cities.length === 0}
+        >
           <InputLabel>Location</InputLabel>
           <Select
             value={location}
@@ -157,10 +194,16 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
 
         <Button
           variant="contained"
-          sx={{ height: '56px', marginTop: isMobile ? '16px' : '0px', borderRadius: 3, backgroundColor: '#5fa7d9', color: '#fff' }}
+          sx={{
+            height: '56px',
+            marginTop: isMobile ? '16px' : '0px',
+            borderRadius: 3,
+            backgroundColor: '#5fa7d9',
+            color: '#fff',
+          }}
           startIcon={<SearchIcon />}
           onClick={handleSearch}
-          disabled={isSearchDisabled} // Keep button active but disable if no input
+          disabled={isSearchDisabled}
         >
           Search
         </Button>
@@ -175,7 +218,8 @@ export default function CategorySelect({ category, handleCategoryChange, venues 
         </DialogTitle>
         <DialogContent>
           <Typography variant="body1" sx={{ marginBottom: 2 }}>
-            Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Get Started" button and make magic happen!
+            Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Get Started" button
+            and make magic happen!
           </Typography>
           <Typography variant="body2" sx={{ fontStyle: 'italic', color: '#757575' }}>
             (It only takes a few seconds, and we promise it’s worth it!)

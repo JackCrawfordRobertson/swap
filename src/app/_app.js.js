@@ -3,7 +3,7 @@ import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import '../src/app/styles/globals.css';
-import { AuthProvider } from '../src/context/AuthContext';
+import { AuthProvider } from '../context/AuthContext';
 import Script from 'next/script';
 
 const theme = createTheme({

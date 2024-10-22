@@ -23,9 +23,9 @@ export const getVenues = async (filters = {}) => {
 export const addVenue = async (venue) => {
   try {
     const docRef = await addDoc(collection(db, 'venues'), venue);
-    console.log("Document written with ID: ", docRef.id);
+    console.log('Document written with ID: ', docRef.id);
   } catch (error) {
-    console.error("Error adding document: ", error);
+    console.error('Error adding venue:', error);
     throw error;
   }
 };
@@ -33,15 +33,15 @@ export const addVenue = async (venue) => {
 // Function to update an existing post
 export const updatePost = async (id, updatedData) => {
   try {
-    console.log("Updating post with ID:", id);
-    console.log("Data being updated:", updatedData);
+    // Remove client-side geocoding
+    // The city will be updated by the Cloud Function if location changes
 
     const postRef = doc(db, 'venues', id);
     await updateDoc(postRef, updatedData);
 
-    console.log("Post updated successfully");
+    console.log('Post updated successfully');
   } catch (error) {
-    console.error("Error updating document: ", error);
+    console.error('Error updating document:', error);
     throw error;
   }
 };

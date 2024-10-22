@@ -1,11 +1,13 @@
 // src/config/firebaseConfig.js
+
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
+// Replace the below configuration with your actual Firebase project details
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, // Use environment variable
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, // Ensure this environment variable is set correctly
   authDomain: "swapp-7f6f8.firebaseapp.com",
   projectId: "swapp-7f6f8",
   storageBucket: "swapp-7f6f8.appspot.com",
@@ -14,11 +16,13 @@ const firebaseConfig = {
   measurementId: "G-H5MWBK70L9"
 };
 
-// Initialize Firebase
+// Initialize Firebase only if it hasn't been initialized yet
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize Firebase services
 const db = getFirestore(app);
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
 const storage = getStorage(app);
 
-export { db, auth, provider, storage };
+// Export the initialized services for use in other parts of the app
+export { db, auth, storage };
