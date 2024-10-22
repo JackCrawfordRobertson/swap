@@ -1,14 +1,14 @@
-// src/pages/index.js
+'use client';
 import React, { useState, useEffect, useContext } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
-import styles from "../src/app/styles/page.module.css";
-import SplitContent from "../src/app/components/SplitContent";
-import CategorySelect from "../src/app/components/CategorySelect";
-import { getVenues } from "../src/utils/firestore";
-import NavigationBar from "../src/app/components/NavigationBar";
-import { AuthContext, AuthProvider } from "../src/context/AuthContext";
+import styles from "./styles/page.module.css";
+import SplitContent from "./components/SplitContent";
+import CategorySelect from "./components/CategorySelect";
+import { getVenues } from "../utils/firestore";
+import NavigationBar from "./components/NavigationBar";
+import { AuthContext, AuthProvider } from "../context/AuthContext";
 import Script from 'next/script';
 
 const theme = createTheme({

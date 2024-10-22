@@ -31,9 +31,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
-// Removed unused imports
-// import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
-// import { getCityFromAddress } from '../../utils/geocode'; // Removed import
 
 const UserPosts = ({ user, open, onClose }) => {
   const [posts, setPosts] = useState([]);
@@ -41,10 +38,9 @@ const UserPosts = ({ user, open, onClose }) => {
   const [editData, setEditData] = useState({
     name: '',
     location: '',
-    seatingType: '',
+    venueType: '', // Changed to venueType
     capacity: { seated: '', standing: '' },
     squareFootage: '',
-    venueType: '',
     description: '',
     bookingEmail: '',
     images: [],
@@ -76,10 +72,9 @@ const UserPosts = ({ user, open, onClose }) => {
     setEditData({
       name: post.name,
       location: post.location,
-      seatingType: post.seatingType,
+      venueType: post.venueType, // Updated to venueType
       capacity: post.capacity,
       squareFootage: post.squareFootage,
-      venueType: post.venueType,
       description: post.description,
       bookingEmail: post.bookingEmail,
       images: post.images,
@@ -111,8 +106,6 @@ const UserPosts = ({ user, open, onClose }) => {
     }
   };
 
-  // Removed handleSelect function and PlacesAutocomplete
-
   const handleEditSubmit = async () => {
     try {
       let imageUrls = editData.images;
@@ -130,7 +123,7 @@ const UserPosts = ({ user, open, onClose }) => {
       const updatedData = {
         ...editData,
         images: imageUrls,
-        venueType: editData.venueType || 'Unknown', // Set a default value if venueType is undefined
+        venueType: editData.venueType || 'Unknown', // Ensure venueType is present
       };
 
       // Remove any fields with undefined values
@@ -144,10 +137,10 @@ const UserPosts = ({ user, open, onClose }) => {
       await updatePost(editPost.id, updatedData);
 
       setSnackbarMessage('Changes saved successfully!');
-      setOpenSnackbar(true); // Show success message
+      setOpenSnackbar(true);
 
       setOpenEdit(false);
-      fetchPosts(); // Refresh posts
+      fetchPosts();
     } catch (error) {
       console.error('Error updating post:', error);
       setSnackbarMessage('Failed to save changes');
@@ -164,7 +157,7 @@ const UserPosts = ({ user, open, onClose }) => {
       setOpenEdit(false);
       setSnackbarMessage('Successfully deleted post');
       setOpenSnackbar(true);
-      fetchPosts(); // Refresh posts
+      fetchPosts();
     } catch (error) {
       console.error('Error deleting post:', error);
     }
@@ -178,10 +171,7 @@ const UserPosts = ({ user, open, onClose }) => {
     <>
       <Drawer anchor="right" open={open} onClose={onClose}>
         <Box sx={{ width: 400, padding: 2 }}>
-          <IconButton
-            onClick={onClose}
-            sx={{ position: 'absolute', right: 8, top: 8, color: 'grey.500' }}
-          >
+          <IconButton onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8, color: 'grey.500' }}>
             <CloseIcon />
           </IconButton>
           <Typography variant="h6" gutterBottom>
@@ -258,7 +248,6 @@ const UserPosts = ({ user, open, onClose }) => {
             fullWidth
             sx={{ marginBottom: 2, marginTop: 2 }}
           />
-          {/* Changed to a regular TextField for location */}
           <TextField
             name="location"
             label="Location"
@@ -270,10 +259,10 @@ const UserPosts = ({ user, open, onClose }) => {
           />
 
           <FormControl fullWidth sx={{ marginBottom: 2, marginTop: 2 }}>
-            <InputLabel>Seating Style</InputLabel>
+            <InputLabel>Venue Type</InputLabel> {/* Changed field */}
             <Select
-              name="seatingType"
-              value={editData.seatingType}
+              name="venueType"
+              value={editData.venueType}
               onChange={handleEditChange}
               required
             >

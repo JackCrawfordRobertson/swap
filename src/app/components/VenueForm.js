@@ -23,13 +23,11 @@ import { addVenue, uploadImage } from '../../utils/firestore';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
-// Removed unused imports
-// import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 
 const VenueForm = ({ user, onClose }) => {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
-  const [seatingType, setSeatingType] = useState('');
+  const [venueType, setVenueType] = useState(''); // Changed from seatingType to venueType
   const [capacity, setCapacity] = useState({ seated: '', standing: '' });
   const [squareFootage, setSquareFootage] = useState('');
   const [description, setDescription] = useState('');
@@ -47,10 +45,7 @@ const VenueForm = ({ user, onClose }) => {
     const newErrors = {};
     if (!name) newErrors.name = 'Venue Name is required';
     if (!location) newErrors.location = 'Location is required';
-    if (
-      !bookingEmail ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingEmail)
-    ) {
+    if (!bookingEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingEmail)) {
       newErrors.bookingEmail = 'Valid email is required';
     }
     setErrors(newErrors);
@@ -59,23 +54,17 @@ const VenueForm = ({ user, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validate()) {
-      return;
-    }
+    if (!validate()) return;
 
     setLoading(true);
-
     try {
-      const imageUploadPromises = Array.from(images).map((image) =>
-        uploadImage(image)
-      );
+      const imageUploadPromises = Array.from(images).map((image) => uploadImage(image));
       const imageUrls = await Promise.all(imageUploadPromises);
 
       const venue = {
         name,
         location,
-        seatingType,
+        venueType, // Changed field
         capacity,
         squareFootage,
         description,
@@ -91,7 +80,7 @@ const VenueForm = ({ user, onClose }) => {
       // Reset form after submission
       setName('');
       setLocation('');
-      setSeatingType('');
+      setVenueType(''); // Reset venueType
       setCapacity({ seated: '', standing: '' });
       setSquareFootage('');
       setDescription('');
@@ -116,9 +105,7 @@ const VenueForm = ({ user, onClose }) => {
     const files = e.target.files;
     setImages(files);
 
-    const previews = Array.from(files).map((file) =>
-      URL.createObjectURL(file)
-    );
+    const previews = Array.from(files).map((file) => URL.createObjectURL(file));
     setImagePreviews(previews);
   };
 
@@ -131,8 +118,8 @@ const VenueForm = ({ user, onClose }) => {
     setImagePreviews(newPreviews);
   };
 
-  const handleSeatingTypeChange = (e) => {
-    setSeatingType(e.target.value);
+  const handleVenueTypeChange = (e) => {
+    setVenueType(e.target.value); // Changed field name
     setCapacity({ seated: '', standing: '' });
   };
 
@@ -148,11 +135,7 @@ const VenueForm = ({ user, onClose }) => {
       <Typography variant="h6" gutterBottom>
         Add Venue
       </Typography>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-      >
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
           label="Venue Name"
           value={name}
@@ -161,8 +144,6 @@ const VenueForm = ({ user, onClose }) => {
           error={!!errors.name}
           helperText={errors.name}
         />
-
-        {/* Changed to a regular TextField for location */}
         <TextField
           label="Location"
           value={location}
@@ -171,12 +152,11 @@ const VenueForm = ({ user, onClose }) => {
           error={!!errors.location}
           helperText={errors.location}
         />
-
         <FormControl fullWidth sx={{ marginBottom: 2 }}>
-          <InputLabel>Seating Style</InputLabel>
+          <InputLabel>Venue Type</InputLabel>
           <Select
-            value={seatingType}
-            onChange={handleSeatingTypeChange}
+            value={venueType} // Changed to venueType
+            onChange={handleVenueTypeChange}
             required
           >
             <MenuItem value="Cabaret">Cabaret</MenuItem>
@@ -188,17 +168,17 @@ const VenueForm = ({ user, onClose }) => {
           </Select>
         </FormControl>
 
-        {seatingType && (
+        {venueType && ( // Changed from seatingType to venueType
           <>
             <TextField
-              label={`Seated Capacity for ${seatingType} Style`}
+              label={`Seated Capacity for ${venueType} Style`} // Changed to venueType
               value={capacity.seated}
               onChange={(e) => handleCapacityChange(e, 'seated')}
               fullWidth
               sx={{ marginBottom: 2 }}
             />
             <TextField
-              label={`Standing Capacity for ${seatingType} Style`}
+              label={`Standing Capacity for ${venueType} Style`} // Changed to venueType
               value={capacity.standing}
               onChange={(e) => handleCapacityChange(e, 'standing')}
               fullWidth
@@ -214,7 +194,6 @@ const VenueForm = ({ user, onClose }) => {
           fullWidth
           sx={{ marginBottom: 2 }}
         />
-
         <TextField
           label="Description"
           value={description}
@@ -244,9 +223,7 @@ const VenueForm = ({ user, onClose }) => {
               control={
                 <Switch
                   checked={hasCatering.onSite}
-                  onChange={(e) =>
-                    setHasCatering({ ...hasCatering, onSite: e.target.checked })
-                  }
+                  onChange={(e) => setHasCatering({ ...hasCatering, onSite: e.target.checked })}
                 />
               }
               label="On-Site Catering"
@@ -255,12 +232,7 @@ const VenueForm = ({ user, onClose }) => {
               control={
                 <Switch
                   checked={hasCatering.external}
-                  onChange={(e) =>
-                    setHasCatering({
-                      ...hasCatering,
-                      external: e.target.checked,
-                    })
-                  }
+                  onChange={(e) => setHasCatering({ ...hasCatering, external: e.target.checked })}
                 />
               }
               label="External Catering Allowed"
@@ -278,49 +250,19 @@ const VenueForm = ({ user, onClose }) => {
           helperText={errors.bookingEmail}
         />
 
-        <Input
-          type="file"
-          inputProps={{ multiple: true }}
-          onChange={handleImageChange}
-          sx={{ marginBottom: 2 }}
-        />
+        <Input type="file" inputProps={{ multiple: true }} onChange={handleImageChange} sx={{ marginBottom: 2 }} />
 
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            flexWrap: 'wrap',
-            marginTop: 2,
-          }}
-        >
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', marginTop: 2 }}>
           {imagePreviews.map((src, index) => (
-            <Box
-              key={index}
-              sx={{
-                position: 'relative',
-                width: '100px',
-                height: '100px',
-              }}
-            >
+            <Box key={index} sx={{ position: 'relative', width: '100px', height: '100px' }}>
               <img
                 src={src}
                 alt={`preview-${index}`}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '8px',
-                }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
               />
               <IconButton
                 onClick={() => handleRemoveImage(index)}
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  padding: '2px',
-                  color: 'red',
-                }}
+                sx={{ position: 'absolute', top: 0, right: 0, padding: '2px', color: 'red' }}
               >
                 <DeleteIcon />
               </IconButton>
@@ -334,11 +276,7 @@ const VenueForm = ({ user, onClose }) => {
 
         {loading && <LinearProgress sx={{ marginTop: 2 }} />}
         {uploadComplete && (
-          <Typography
-            variant="body1"
-            color="green"
-            sx={{ marginTop: 2 }}
-          >
+          <Typography variant="body1" color="green" sx={{ marginTop: 2 }}>
             Upload Complete
           </Typography>
         )}

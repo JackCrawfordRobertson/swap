@@ -1,4 +1,4 @@
-// src/app/components/GetStartedScreen.js
+"use client"; // Ensure the directive is in lowercase
 
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -9,14 +9,17 @@ import {
   Grid,
   Alert,
   CircularProgress,
-  Link,
+  Link as MuiLink,
 } from '@mui/material';
 import { AuthContext } from '../../context/AuthContext';
 import { signInWithEmail, registerWithEmail, resetPassword } from '../../utils/auth';
-import { useRouter } from 'next/router';
+// Removed useRouter import
+// import { useRouter } from 'next/router';
 import { styled } from '@mui/material/styles';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image'; // If you use images
+import Link from 'next/link'; // Import Next.js Link component if needed
 
 // Styled Components
 const BackgroundBox = styled(Box)(({ theme }) => ({
@@ -55,7 +58,8 @@ const ContentBox = styled(Box)(({ theme }) => ({
 
 export default function GetStartedScreen() {
   const { user } = useContext(AuthContext);
-  const router = useRouter();
+  // Removed useRouter
+  // const router = useRouter();
 
   // Mode can be 'login', 'register', 'reset'
   const [mode, setMode] = useState('login');
@@ -79,9 +83,9 @@ export default function GetStartedScreen() {
     console.log('AuthContext User:', user);
     if (user) {
       console.log('User is authenticated. Redirecting to home page.');
-      router.push('/');
+      window.location.href = '/'; // Redirect without useRouter
     }
-  }, [user, router]);
+  }, [user]);
 
   // Handlers for Input Changes with Validation
   const handleEmailChange = (e) => {
@@ -148,7 +152,7 @@ export default function GetStartedScreen() {
       const signedInUser = await signInWithEmail(email, password);
       console.log('Sign-in successful:', signedInUser);
       toast.success('Login successful! Redirecting...');
-      router.push('/');
+      window.location.href = '/'; // Redirect without useRouter
     } catch (error) {
       console.error('Error during sign-in:', error);
       setError(error.message);
@@ -319,16 +323,20 @@ export default function GetStartedScreen() {
           {/* Submit Button */}
           <Grid item xs={12}>
             {mode === 'login' && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSignInWithEmail}
-                sx={{ color: 'white', margin: '0.5em 0' }}
-                fullWidth
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Login with Email'}
-              </Button>
+             <Button
+             variant="contained"
+             color="primary"
+             onClick={handleSignInWithEmail}
+             sx={{ color: 'white', margin: '0.5em 0' }}
+             fullWidth
+             disabled={loading}
+           >
+             {loading ? (
+               <CircularProgress size={36} color="inherit" /> // Increase size for more visibility
+             ) : (
+               'Login with Email'
+             )}
+           </Button>
             )}
 
             {mode === 'register' && (
@@ -364,15 +372,15 @@ export default function GetStartedScreen() {
               <Box>
                 <Typography variant="body2">
                   Don't have an account?{' '}
-                  <Link href="#" onClick={switchToRegister}>
+                  <MuiLink href="#" onClick={switchToRegister}>
                     Register here
-                  </Link>
+                  </MuiLink>
                 </Typography>
                 <Typography variant="body2">
                   Forgot your password?{' '}
-                  <Link href="#" onClick={switchToReset}>
+                  <MuiLink href="#" onClick={switchToReset}>
                     Reset Password
-                  </Link>
+                  </MuiLink>
                 </Typography>
               </Box>
             )}
@@ -381,9 +389,9 @@ export default function GetStartedScreen() {
               <Box>
                 <Typography variant="body2">
                   Already have an account?{' '}
-                  <Link href="#" onClick={switchToLogin}>
+                  <MuiLink href="#" onClick={switchToLogin}>
                     Login here
-                  </Link>
+                  </MuiLink>
                 </Typography>
               </Box>
             )}
@@ -392,9 +400,9 @@ export default function GetStartedScreen() {
               <Box>
                 <Typography variant="body2">
                   Remembered your password?{' '}
-                  <Link href="#" onClick={switchToLogin}>
+                  <MuiLink href="#" onClick={switchToLogin}>
                     Login here
-                  </Link>
+                  </MuiLink>
                 </Typography>
               </Box>
             )}
