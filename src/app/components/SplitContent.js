@@ -14,7 +14,7 @@ export default function SplitContent() {
       sx={{
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        width: '100%',
+        minWidth: 'auto',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
@@ -24,7 +24,7 @@ export default function SplitContent() {
       <Box
         sx={{
           flex: 1,
-          padding: 2,
+          padding: isMobile ? '0' : '2',
           textAlign: 'left',
         }}
       >
@@ -35,12 +35,13 @@ export default function SplitContent() {
             fontWeight: 'bold',
             color: textColor,
             lineHeight: 1,
+            
           }}
         >
           SWAP - Why not consider swapping venues with a fellow corporate planner.
         </Typography>
         <Typography
-          variant={isMobile ? 'h4' : 'h5'}
+          variant={isMobile ? 'h5' : 'h5'}
           component="blockquote"
           sx={{
             fontWeight: 'Regular',

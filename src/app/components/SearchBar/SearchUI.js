@@ -54,12 +54,12 @@ const SearchUI = ({
                     justifyContent: "space-between",
                     width: "100%",
                     gap: 2,
-                    marginBottom: 4,
+                    marginBottom: isMobile ? '0' : '4'
                 }}
             >
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1 }}
+                    sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
                     onMouseDown={handleInteraction}
                     disabled={venueTypes.length === 0}
                 >
@@ -83,7 +83,7 @@ const SearchUI = ({
                     </Select>
                 </FormControl>
 
-                <FormControl variant="outlined" sx={{ flex: 1 }} onMouseDown={handleInteraction}>
+                <FormControl variant="outlined" sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }} onMouseDown={handleInteraction}>
                     <TextField
                         value={guests}
                         onChange={handleGuestsChange}
@@ -102,7 +102,7 @@ const SearchUI = ({
 
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1 }}
+                    sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
                     onMouseDown={handleInteraction}
                     disabled={cities.length === 0}
                 >

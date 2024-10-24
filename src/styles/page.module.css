@@ -15,6 +15,14 @@
   width: 80%;
 }
 
+@media (max-width: 600px) {
+  .center {
+    width: 100%;
+    margin-top: 0px;
+
+  }
+}
+
 .logo {
   margin-bottom: 20px;
 }
