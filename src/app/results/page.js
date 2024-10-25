@@ -37,7 +37,7 @@ const theme = createTheme({
 
 const ResultsContent = () => {
     const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
-    const venueType = searchParams.get("venueType"); // Changed from eventType to venueType
+    const eventType = searchParams.get("eventType"); // Changed from eventType to eventType
     const guests = searchParams.get("guests");
     const location = searchParams.get("location");
     const squareFootage = searchParams.get("squareFootage");
@@ -66,9 +66,9 @@ const ResultsContent = () => {
                     return str1.trim().toLowerCase() === str2.trim().toLowerCase();
                 };
 
-                if (venueType) {
-                    filtered = filtered.filter((venue) => safeCompare(venue.venueType, venueType)); // Changed to venueType
-                    console.log("After venueType filter:", filtered);
+                if (eventType) {
+                    filtered = filtered.filter((venue) => safeCompare(venue.eventType, eventType)); // Changed to eventType
+                    console.log("After eventType filter:", filtered);
                 }
                 if (location) {
                     filtered = filtered.filter((venue) => safeCompare(venue.location, location));
@@ -104,7 +104,7 @@ const ResultsContent = () => {
         };
 
         fetchVenues();
-    }, [venueType, location, squareFootage, guests]); // Updated dependency to venueType
+    }, [eventType, location, squareFootage, guests]); // Updated dependency to eventType
 
     const handleCardClick = (venue) => {
         setSelectedVenue(venue);
@@ -177,7 +177,7 @@ const ResultsContent = () => {
                                             Location: {venue.city}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Venue Type: {venue.venueType} {/* Changed from seatingType */}
+                                            Event Type: {venue.eventType} {/* Changed from seatingType */}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Capacity: {venue.capacity.seated} seated,{" "}

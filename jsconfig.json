@@ -8,7 +8,7 @@
   "include": [
     "src",               // This includes everything in the 'src' directory
     "pages",             // This includes all files in the 'pages' directory (Next.js default)
-    "src/app/get-started/page.js",  // Specific page if you want to explicitly include it
+    "src/app/Login/page.js",  // Specific page if you want to explicitly include it
     "src/app/layout.js",  // Explicitly include this file if needed
     "pages/results.js"   // Explicitly include this file if needed
   ]

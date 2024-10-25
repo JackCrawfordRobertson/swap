@@ -7,42 +7,42 @@ import { AuthContext } from "@/context/AuthContext";
 import SearchUI from "./SearchUI"; // Import the UI component
 
 export default function SearchLogic() {
-    const [venueType, setVenueType] = useState("");
+    const [eventType, seteventType] = useState("");
     const [guests, setGuests] = useState("");
     const [location, setLocation] = useState("");
     const [cities, setCities] = useState([]);
-    const [venueTypes, setVenueTypes] = useState([]);
+    const [eventTypes, seteventTypes] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
-        const fetchCitiesAndVenueTypes = async () => {
+        const fetchCitiesAndeventTypes = async () => {
             try {
                 const venues = await getVenues();
                 const uniqueCities = new Set();
-                const uniqueVenueTypes = new Set();
+                const uniqueeventTypes = new Set();
 
                 for (const venue of venues) {
                     if (venue.location) {
                         uniqueCities.add(venue.location);
                     }
-                    if (venue.venueType) {
-                        uniqueVenueTypes.add(venue.venueType);
+                    if (venue.eventType) {
+                        uniqueeventTypes.add(venue.eventType);
                     }
                 }
 
                 setCities(Array.from(uniqueCities));
-                setVenueTypes(Array.from(uniqueVenueTypes));
+                seteventTypes(Array.from(uniqueeventTypes));
             } catch (error) {
                 console.error("Error fetching venues:", error);
             }
         };
 
-        fetchCitiesAndVenueTypes();
+        fetchCitiesAndeventTypes();
     }, []);
 
-    const handleVenueTypeChange = (event) => {
-        setVenueType(event.target.value);
+    const handleeventTypeChange = (event) => {
+        seteventType(event.target.value);
     };
 
     const handleGuestsChange = (event) => {
@@ -59,7 +59,7 @@ export default function SearchLogic() {
     const handleSearch = () => {
         if (user) {
             const queryParams = new URLSearchParams({
-                venueType,
+                eventType,
                 guests,
                 location,
             }).toString();
@@ -80,18 +80,18 @@ export default function SearchLogic() {
         }
     };
 
-    const isSearchDisabled = !venueType && !guests && !location;
+    const isSearchDisabled = !eventType && !guests && !location;
 
     return (
         <SearchUI
-            venueType={venueType}
+            eventType={eventType}
             guests={guests}
             location={location}
             cities={cities}
-            venueTypes={venueTypes}
+            eventTypes={eventTypes}
             openDialog={openDialog}
             isSearchDisabled={isSearchDisabled}
-            handleVenueTypeChange={handleVenueTypeChange}
+            handleeventTypeChange={handleeventTypeChange}
             handleGuestsChange={handleGuestsChange}
             handleLocationChange={handleLocationChange}
             handleSearch={handleSearch}

@@ -64,8 +64,8 @@ const EditPostForm = ({
       />
 
       <FormControl fullWidth sx={{ marginBottom: 2, marginTop: 2 }}>
-        <InputLabel>Venue Type</InputLabel>
-        <Select name="venueType" value={editData.venueType} onChange={handleEditChange} required>
+        <InputLabel>Event Type</InputLabel>
+        <Select name="eventType" value={editData.eventType} onChange={handleEditChange} required>
           <MenuItem value="Cabaret">Cabaret</MenuItem>
           <MenuItem value="Theatre">Theatre</MenuItem>
           <MenuItem value="Boardroom">Boardroom</MenuItem>

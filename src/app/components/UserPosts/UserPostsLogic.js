@@ -16,7 +16,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   const [editData, setEditData] = useState({
     name: "",
     location: "",
-    venueType: "",
+    eventType: "",
     capacity: { seated: "", standing: "" },
     squareFootage: "",
     description: "",
@@ -50,7 +50,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     setEditData({
       name: post.name,
       location: post.location,
-      venueType: post.venueType,
+      eventType: post.eventType,
       capacity: post.capacity,
       squareFootage: post.squareFootage,
       description: post.description,

@@ -8,7 +8,7 @@ import VenueFormUI from "./VenueFormUI"; // Import the UI component
 const VenueFormLogic = ({ user, onClose }) => {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const [venueType, setVenueType] = useState(""); // Changed from seatingType to venueType
+  const [eventType, setEventType] = useState(""); // Changed from seatingType to eventType
   const [capacity, setCapacity] = useState({ seated: "", standing: "" });
   const [squareFootage, setSquareFootage] = useState("");
   const [description, setDescription] = useState("");
@@ -45,7 +45,7 @@ const VenueFormLogic = ({ user, onClose }) => {
       const venue = {
         name,
         location,
-        venueType, // Changed field
+        eventType, // Changed field
         capacity,
         squareFootage,
         description,
@@ -75,7 +75,7 @@ const VenueFormLogic = ({ user, onClose }) => {
   const resetForm = () => {
     setName("");
     setLocation("");
-    setVenueType(""); // Reset venueType
+    setEventType(""); // Reset eventType
     setCapacity({ seated: "", standing: "" });
     setSquareFootage("");
     setDescription("");
@@ -103,8 +103,8 @@ const VenueFormLogic = ({ user, onClose }) => {
     setImagePreviews(newPreviews);
   };
 
-  const handleVenueTypeChange = (e) => {
-    setVenueType(e.target.value);
+  const handleEventTypeChange = (e) => {
+    setEventType(e.target.value);
     setCapacity({ seated: "", standing: "" });
   };
 
@@ -118,8 +118,8 @@ const VenueFormLogic = ({ user, onClose }) => {
       setName={setName}
       location={location}
       setLocation={setLocation}
-      venueType={venueType}
-      setVenueType={setVenueType}
+      eventType={eventType}
+      setEventType={setEventType}
       capacity={capacity}
       setCapacity={setCapacity}
       squareFootage={squareFootage}
@@ -145,7 +145,7 @@ const VenueFormLogic = ({ user, onClose }) => {
       handleSubmit={handleSubmit}
       handleImageChange={handleImageChange}
       handleRemoveImage={handleRemoveImage}
-      handleVenueTypeChange={handleVenueTypeChange}
+      handleEventTypeChange={handleEventTypeChange}
       handleCapacityChange={handleCapacityChange}
       onClose={onClose}
     />

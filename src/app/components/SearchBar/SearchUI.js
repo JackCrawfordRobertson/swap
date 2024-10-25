@@ -23,14 +23,14 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useMediaQuery, useTheme } from "@mui/material";
 
 const SearchUI = ({
-    venueType,
+    eventType,
     guests,
     location,
     cities,
-    venueTypes,
+    eventTypes,
     openDialog,
     isSearchDisabled,
-    handleVenueTypeChange,
+    handleeventTypeChange,
     handleGuestsChange,
     handleLocationChange,
     handleSearch,
@@ -61,13 +61,13 @@ const SearchUI = ({
                     variant="outlined"
                     sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
                     onMouseDown={handleInteraction}
-                    disabled={venueTypes.length === 0}
+                    disabled={eventTypes.length === 0}
                 >
-                    <InputLabel>Venue Type</InputLabel>
+                    <InputLabel>Event Type</InputLabel>
                     <Select
-                        value={venueType}
-                        onChange={handleVenueTypeChange}
-                        label="Venue Type"
+                        value={eventType}
+                        onChange={handleeventTypeChange}
+                        label="Event Type"
                         startAdornment={
                             <InputAdornment position="start">
                                 <EventIcon style={{ color: "gray" }} />
@@ -75,7 +75,7 @@ const SearchUI = ({
                         }
                         sx={{ color: "black" }}
                     >
-                        {venueTypes.map((type, index) => (
+                        {eventTypes.map((type, index) => (
                             <MenuItem key={index} value={type}>
                                 {type}
                             </MenuItem>
@@ -151,7 +151,7 @@ const SearchUI = ({
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Get Started" button and make magic happen!
+                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Login" button and make magic happen!
                     </Typography>
                     <Typography variant="body2" sx={{ fontStyle: "italic", color: "#757575" }}>
                         (It only takes a few seconds, and we promise it’s worth it!)

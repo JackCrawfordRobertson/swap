@@ -129,7 +129,7 @@ const NavigationUI = ({
                                 ) : (
                                     <StyledButton
                                         component={Link}
-                                        href="/get-started"
+                                        href="/login"
                                         variant="outlined"
                                         startIcon={<ArrowForwardIosIcon style={{color: "white"}} />}
                                         sx={{
@@ -141,7 +141,7 @@ const NavigationUI = ({
                                             },
                                         }}
                                     >
-                                        Get Started
+                                        Login
                                     </StyledButton>
                                 )}
                             </Box>

@@ -28,8 +28,8 @@ const VenueFormUI = ({
   setName,
   location,
   setLocation,
-  venueType,
-  setVenueType,
+  eventType,
+  setEventType,
   capacity,
   setCapacity,
   squareFootage,
@@ -50,7 +50,7 @@ const VenueFormUI = ({
   handleSubmit,
   handleImageChange,
   handleRemoveImage,
-  handleVenueTypeChange,
+  handleEventTypeChange,
   handleCapacityChange,
   onClose,
 }) => {
@@ -80,28 +80,29 @@ const VenueFormUI = ({
           helperText={errors.location}
         />
         <FormControl fullWidth sx={{ marginBottom: 2 }}>
-          <InputLabel>Venue Type</InputLabel>
-          <Select value={venueType} onChange={handleVenueTypeChange} required>
+          <InputLabel>Event Type</InputLabel>
+          <Select value={eventType} onChange={handleEventTypeChange} required>
             <MenuItem value="Cabaret">Cabaret</MenuItem>
             <MenuItem value="Theatre">Theatre</MenuItem>
             <MenuItem value="Boardroom">Boardroom</MenuItem>
             <MenuItem value="Banquet">Banquet</MenuItem>
+            <MenuItem value="Reception">Reception</MenuItem>
             <MenuItem value="U-Shape">U-Shape</MenuItem>
             <MenuItem value="Classroom">Classroom</MenuItem>
           </Select>
         </FormControl>
 
-        {venueType && (
+        {eventType && (
           <>
             <TextField
-              label={`Seated Capacity for ${venueType} Style`}
+              label={`Seated Capacity for ${eventType} Style`}
               value={capacity.seated}
               onChange={(e) => handleCapacityChange(e, "seated")}
               fullWidth
               sx={{ marginBottom: 2 }}
             />
             <TextField
-              label={`Standing Capacity for ${venueType} Style`}
+              label={`Standing Capacity for ${eventType} Style`}
               value={capacity.standing}
               onChange={(e) => handleCapacityChange(e, "standing")}
               fullWidth
