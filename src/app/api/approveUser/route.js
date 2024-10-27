@@ -11,31 +11,28 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
 
-  console.log(`Received request to approve user with ID: ${userId}`);
-
   try {
+    // Fetch user from 'pendingUsers' collection
     const userRef = db.collection('pendingUsers').doc(userId);
-    console.log(`Fetching user document for ID: ${userId}`);
-
     const userDoc = await userRef.get();
-    console.log(`User document fetched: ${userDoc.exists ? 'Found' : 'Not Found'}`);
 
     if (!userDoc.exists) {
-      console.warn(`User document not found for ID: ${userId}`);
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
     const { email, password, username } = userDoc.data();
-    console.log(`User found: ${username} (${email})`);
 
-    // Create user using the Admin SDK
-    console.log('Attempting to create user in Firebase Auth using Admin SDK...');
+    // Validate retrieved data
+    if (!email || !password || !username) {
+      throw new Error('Incomplete user data');
+    }
+
+    // Create user in Firebase Auth using the Admin SDK
     const userRecord = await auth.createUser({
       email,
       password,
       displayName: username,
     });
-    console.log(`User created in Firebase Auth: ${userRecord.uid}`);
 
     // Save user data in the 'users' collection
     await db.collection('users').doc(userRecord.uid).set({
@@ -43,11 +40,9 @@ export async function GET(request) {
       username,
       createdAt: new Date(),
     });
-    console.log(`User data saved in 'users' collection for user ID: ${userRecord.uid}`);
 
-    // Delete the user from pendingUsers
+    // Delete the user from 'pendingUsers' collection
     await userRef.delete();
-    console.log(`User removed from pendingUsers collection for ID: ${userId}`);
 
     // Send approval email using the formatted HTML template
     const emailContent = createApprovalEmailTemplate({ username });
@@ -57,7 +52,6 @@ export async function GET(request) {
       subject: 'Registration Approved - Welcome to SWAP!',
       html: emailContent,
     });
-    console.log(`Approval email sent to: ${email}`);
 
     return NextResponse.json(
       { message: 'User approved and added to Firebase Auth.' },
@@ -66,7 +60,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error approving user:', error.message);
     return NextResponse.json(
-      { message: 'Failed to approve user.', error: error.message },
+      { message: 'Failed to approve user.' },
       { status: 500 }
     );
   }
