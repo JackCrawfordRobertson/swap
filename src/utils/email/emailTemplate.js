@@ -162,7 +162,7 @@ export const createDisapprovalEmailTemplate = ({ username }) => `
               <tr>
                 <td style="padding: 20px; font-size: 16px; line-height: 1.6; color: #333; text-align: center;">
                   <p>Dear ${username},</p>
-                  <p>We regret to inform you that your registration request has not been approved at this time.</p>
+                  <p>We would like to inform you that your registration request has not been approved at this time.</p>
                   <p>If you have any questions or believe this was a mistake, please feel free to contact our support team.</p>
                   <p>Thank you for your understanding.</p>
                 </td>
