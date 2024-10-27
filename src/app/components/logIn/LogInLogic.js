@@ -76,7 +76,7 @@ export default function LogInLogic() {
       setError(null);
       if (!username || !email || !password) throw new Error('All fields are required');
       const registeredUser = await registerWithEmail(email, password, username);
-      toast.success('Registration successful! Please verify your email.');
+      toast.success('Registration successful! We are now reviewing your account.');
       setMode('login');
     } catch (error) {
       setError(error.message);

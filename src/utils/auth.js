@@ -1,23 +1,19 @@
 // src/utils/auth.js
 
-import { auth, db } from '../config/firebaseConfig';
+import { auth, db } from "../config/firebaseConfig";
 import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-} from 'firebase/auth';
-import {
-  doc,
-  setDoc,
-  getDocs,
-  collection,
-  query,
-  where,
-} from 'firebase/firestore';
+} from "firebase/auth";
+import { doc, setDoc, addDoc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
+
+import { createUserRegistrationTemplate, createAdminApprovalTemplate } from "@/utils/email/emailTemplate";
+import { sendEmail } from "@/utils/services/emailService";
 
 // Allowed email domains
-const allowedDomains = ['aviva.com', 'ice-hub.biz', 'ya-ya.co.uk'];
+const allowedDomains = ["aviva.com", "ice-hub.biz", "ya-ya.co.uk", "jack-robertson.co.uk"];
 
 /**
  * Checks if the provided email has an allowed domain.
@@ -25,7 +21,7 @@ const allowedDomains = ['aviva.com', 'ice-hub.biz', 'ya-ya.co.uk'];
  * @returns {boolean} - Returns true if the domain is allowed, false otherwise.
  */
 const isAllowedDomain = (email) => {
-  const emailDomain = email.split('@')[1]?.toLowerCase();
+  const emailDomain = email.split("@")[1]?.toLowerCase();
   return allowedDomains.includes(emailDomain);
 };
 
@@ -39,83 +35,92 @@ const isAllowedDomain = (email) => {
 const signInWithEmail = async (email, password) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    return user;
+    return userCredential.user;
   } catch (error) {
-    // Customize error messages based on error codes
     switch (error.code) {
       case 'auth/user-not-found':
-        throw new Error('No user found with this email.');
+        throw new Error('No user found with this email. Please check your email address or register.');
       case 'auth/wrong-password':
         throw new Error('Incorrect password. Please try again.');
       case 'auth/invalid-email':
-        throw new Error('Invalid email address.');
+        throw new Error('Invalid email address format.');
       case 'auth/user-disabled':
-        throw new Error('This user has been disabled.');
+        throw new Error('This user has been disabled. Please contact support.');
+      case 'auth/invalid-credential':
+        throw new Error('Invalid credentials. Please check your login details.');
       default:
-        throw new Error(error.message);
+        throw new Error('An error occurred during sign-in. Please try again later.');
     }
   }
 };
 
 /**
- * Registers a new user with email, password, and username.
+ * Registers a new user with email, password, and username, sending emails to user and admin.
  * @param {string} email - The user's email address.
  * @param {string} password - The user's password.
  * @param {string} username - The desired username.
- * @returns {Promise<Object>} - Returns the registered user object.
+ * @returns {Promise<Object>} - Returns the registration result.
  * @throws {Error} - Throws an error if registration fails.
  */
 const registerWithEmail = async (email, password, username) => {
   try {
-    // Trim inputs to remove unnecessary whitespace
     email = email.trim().toLowerCase();
     username = username.trim();
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new Error('Please enter a valid email address.');
-    }
+    if (!emailRegex.test(email)) throw new Error("Please enter a valid email address.");
 
     // Check for allowed domains
-    if (!isAllowedDomain(email)) {
-      throw new Error('Email domain not allowed.');
-    }
+    if (!isAllowedDomain(email)) throw new Error("Email domain not allowed.");
 
-    // Check if username already exists
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('username', '==', username));
+    // Check if username already exists in Firestore
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("username", "==", username));
     const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      throw new Error('Username already taken. Please choose another.');
-    }
+    if (!querySnapshot.empty) throw new Error("Username already taken. Please choose another.");
 
-    // Create user with email and password
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Store additional user information in Firestore
-    await setDoc(doc(db, 'users', user.uid), {
-      username: username,
-      email: email,
+    // Add user data to the pendingUsers collection
+    const pendingRef = collection(db, "pendingUsers");
+    const userDoc = await addDoc(pendingRef, {
+      username,
+      email,
+      password, // Note: Hash in production for security
       createdAt: new Date(),
     });
 
-    return user;
+    // Send confirmation email to user
+    const userContent = `
+      <p>Thank you for registering, <b>${username}</b>!</p>
+      <p>Your request is currently pending approval. Our team is reviewing your information to ensure everything is in order.</p>
+      <p>We’ll be in touch soon with an update on the status of your account. If you have any questions in the meantime, feel free to reach out to our support team.</p>`;
+    await sendEmail({
+      to: email,
+      from: "support@ice-hub.biz",
+      subject: "Registration Request Received",
+      html: createUserRegistrationTemplate({ content: userContent }),
+    });
+
+    // Send admin approval request email with approval/disapproval links
+    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const approvalLink = `${appUrl}/api/approveUser?userId=${userDoc.id}`;
+    const disapprovalLink = `${appUrl}/api/disapproveUser?userId=${userDoc.id}`;
+    const adminContent = `User <b>${username}</b> <br><br> <b>(${email})</b> has requested an account.`;
+
+    await sendEmail({
+      to: "support@ice-hub.biz", // admin email
+      from: "support@ice-hub.biz",
+      subject: "New User Registration Approval Needed",
+      html: createAdminApprovalTemplate({
+        content: adminContent,
+        approvalLink,
+        disapprovalLink,
+      }),
+    });
+
+    return { success: true, message: "Registration request received." };
   } catch (error) {
-    // Customize error messages based on error codes
-    switch (error.code) {
-      case 'auth/email-already-in-use':
-        throw new Error('Email already in use. Please use a different email.');
-      case 'auth/weak-password':
-        throw new Error('Password is too weak. Please choose a stronger password.');
-      case 'auth/invalid-email':
-        throw new Error('Invalid email address.');
-      default:
-        throw new Error(error.message);
-    }
+    throw new Error("An error occurred during registration. Please try again later.");
   }
 };
 
@@ -127,25 +132,21 @@ const registerWithEmail = async (email, password, username) => {
  */
 const resetPassword = async (email) => {
   try {
-    // Trim and lowercase the email
     email = email.trim().toLowerCase();
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new Error('Please enter a valid email address.');
-    }
+    if (!emailRegex.test(email)) throw new Error("Please enter a valid email address.");
 
     await sendPasswordResetEmail(auth, email);
   } catch (error) {
-    // Customize error messages based on error codes
     switch (error.code) {
-      case 'auth/user-not-found':
-        throw new Error('No user found with this email.');
-      case 'auth/invalid-email':
-        throw new Error('Invalid email address.');
+      case "auth/user-not-found":
+        throw new Error("No user found with this email.");
+      case "auth/invalid-email":
+        throw new Error("Invalid email address.");
       default:
-        throw new Error(error.message);
+        throw new Error("An error occurred during password reset. Please try again.");
     }
   }
 };
@@ -159,8 +160,7 @@ const logout = async () => {
   try {
     await signOut(auth);
   } catch (error) {
-    alert(`Error signing out: ${error.message}`);
-    throw error;
+    throw new Error("An error occurred while signing out. Please try again.");
   }
 };
 

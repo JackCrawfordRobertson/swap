@@ -1,11 +1,11 @@
 // src/config/firebaseConfig.js
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, setLogLevel } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-// Replace the below configuration with your actual Firebase project details
+// Firebase project configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY, // Ensure this environment variable is set correctly
   authDomain: "swapp-7f6f8.firebaseapp.com",
@@ -23,6 +23,13 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+
+// Conditionally set Firestore logging level based on environment
+if (process.env.NODE_ENV === "production") {
+  setLogLevel("silent"); // Disable logging in production
+} else {
+  setLogLevel("warn"); // Reduced logging level in development (can also use "debug" for detailed logs)
+}
 
 // Export the initialized services for use in other parts of the app
 export { db, auth, storage };

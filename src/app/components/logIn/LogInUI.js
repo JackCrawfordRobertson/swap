@@ -1,10 +1,11 @@
+// src/components/logIn/LogInUI.js
+
 import React from 'react';
 import {
   Box,
   Typography,
   TextField,
   Grid,
-  Alert,
   Button,
   CircularProgress,
   Link as MuiLink,
@@ -52,7 +53,6 @@ const LogInUI = ({
   email,
   password,
   username,
-  error,
   loading,
   isEmailValid,
   isUsernameValid,
@@ -77,8 +77,6 @@ const LogInUI = ({
         {mode === 'login' && <Typography>Please log in to continue.</Typography>}
         {mode === 'register' && <Typography>Create a new account.</Typography>}
         {mode === 'reset' && <Typography>Reset your password.</Typography>}
-
-        {error && <Alert severity="error">{error}</Alert>}
 
         <Grid container spacing={2} justifyContent="center">
           {mode === 'register' && (
@@ -176,7 +174,7 @@ const LogInUI = ({
             )}
           </Grid>
         </Grid>
-        <ToastContainer />
+        <ToastContainer /> {/* Only shows toast notifications */}
       </ContentBox>
     </BackgroundBox>
   );

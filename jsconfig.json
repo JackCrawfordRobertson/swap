@@ -11,5 +11,5 @@
     "src/app/Login/page.js",  // Specific page if you want to explicitly include it
     "src/app/layout.js",  // Explicitly include this file if needed
     "pages/results.js"   // Explicitly include this file if needed
-  ]
+, "testEmail.js"  ]
 }

@@ -42,7 +42,7 @@ export default function PrivacyPolicy() {
         <li>Correct or erase your personal data</li>
         <li>Withdraw consent where applicable</li>
       </ul>
-      <p>For any inquiries related to your data, please contact us at jack@ya-ya.co.uk.</p>
+      <p>For any inquiries related to your data, please contact us at support@ice-hub.biz</p>
 
       <h2>6. Changes to This Policy</h2>
       <p>We may update this policy from time to time. Any changes will be posted on this page, so please review it periodically.</p>

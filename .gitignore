@@ -29,6 +29,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+src/config/SWAPP_Firebase_Admin.json
 
 # vercel
 .vercel
@@ -36,3 +37,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+sendgrid.env
