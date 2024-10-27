@@ -33,6 +33,9 @@ const Footer = () => {
         <Link href="/terms" underline="none" color="inherit">
           <Typography variant="body2">Terms & Conditions</Typography>
         </Link>
+        <Typography variant="body2" color="textSecondary">
+          For assistance, contact <Link href="mailto:support@ice-hub.biz" color="inherit">support@ice-hub.biz</Link>
+        </Typography>
       </Box>
     </Box>
   );

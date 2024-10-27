@@ -12,7 +12,6 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
-    Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { getVenues } from "../../utils/firestore";
@@ -22,7 +21,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { useSearchParams } from "next/navigation"; // Import useSearchParams
+import { useSearchParams } from "next/navigation";
 
 const theme = createTheme({
     palette: {
@@ -36,8 +35,8 @@ const theme = createTheme({
 });
 
 const ResultsContent = () => {
-    const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
-    const eventType = searchParams.get("eventType"); // Changed from eventType to eventType
+    const searchParams = useSearchParams();
+    const eventType = searchParams.get("eventType");
     const guests = searchParams.get("guests");
     const location = searchParams.get("location");
     const squareFootage = searchParams.get("squareFootage");
@@ -50,61 +49,35 @@ const ResultsContent = () => {
         const fetchVenues = async () => {
             try {
                 const allVenues = await getVenues();
-                console.log("Fetched Venues:", allVenues);
-
                 const venuesWithCities = allVenues.map((venue) => ({
                     ...venue,
                     city: venue.location,
                 }));
 
                 let filtered = venuesWithCities;
-                console.log("Initial Venues:", filtered);
+                const safeCompare = (str1, str2) => str1?.trim().toLowerCase() === str2?.trim().toLowerCase();
 
-                // Helper function to safely compare strings
-                const safeCompare = (str1, str2) => {
-                    if (!str1 || !str2) return false;
-                    return str1.trim().toLowerCase() === str2.trim().toLowerCase();
-                };
-
-                if (eventType) {
-                    filtered = filtered.filter((venue) => safeCompare(venue.eventType, eventType)); // Changed to eventType
-                    console.log("After eventType filter:", filtered);
-                }
-                if (location) {
-                    filtered = filtered.filter((venue) => safeCompare(venue.location, location));
-                    console.log("After location filter:", filtered);
-                }
+                if (eventType) filtered = filtered.filter((venue) => safeCompare(venue.eventType, eventType));
+                if (location) filtered = filtered.filter((venue) => safeCompare(venue.location, location));
                 if (squareFootage) {
-                    filtered = filtered.filter((venue) => {
-                        const venueSqFt = Number(venue.squareFootage);
-                        const targetSqFt = parseInt(squareFootage, 10);
-                        return !isNaN(venueSqFt) && venueSqFt === targetSqFt;
-                    });
-                    console.log("After squareFootage filter:", filtered);
+                    filtered = filtered.filter(
+                        (venue) => Number(venue.squareFootage) === parseInt(squareFootage, 10)
+                    );
                 }
                 if (guests) {
-                    filtered = filtered.filter((venue) => {
-                        const seatedCapacity = Number(venue.capacity?.seated);
-                        const standingCapacity = Number(venue.capacity?.standing);
-                        const guestCount = parseInt(guests, 10);
-                        return (
-                            (!isNaN(seatedCapacity) && seatedCapacity >= guestCount) ||
-                            (!isNaN(standingCapacity) && standingCapacity >= guestCount)
-                        );
-                    });
-                    console.log("After guests filter:", filtered);
+                    filtered = filtered.filter(
+                        (venue) => Number(venue.capacity?.seated) >= parseInt(guests, 10)
+                    );
                 }
 
-                console.log("Final Filtered Venues:", filtered);
                 setFilteredVenues(filtered);
             } catch (error) {
-                console.error("Error fetching venues:", error);
                 toast.error("Failed to fetch venues.");
             }
         };
 
         fetchVenues();
-    }, [eventType, location, squareFootage, guests]); // Updated dependency to eventType
+    }, [eventType, location, squareFootage, guests]);
 
     const handleCardClick = (venue) => {
         setSelectedVenue(venue);
@@ -114,29 +87,14 @@ const ResultsContent = () => {
         setSelectedVenue(null);
     };
 
-    const handleCopyEmail = () => {
-        if (selectedVenue && selectedVenue.bookingEmail) {
-            navigator.clipboard
-            .writeText(selectedVenue.bookingEmail)
-            .then(() => {
-                toast.success("Booking email copied to clipboard!");
-            })
-            .catch((err) => {
-                toast.error("Failed to copy email.");
-                console.error("Error copying email: ", err);
-            });
-        }
-    };
-
     return (
         <>
-            <div style={{ margin: "1em" }}>
+            <Box sx={{ margin: "1em" }}>
                 <NavigationLogic user={user} />
-            </div>
+            </Box>
 
-            {/* Results Grid */}
             <Box sx={{ paddingLeft: "1em", paddingRight: "1em", marginTop: "1em" }}>
-                <Typography variant="h4" component="h1" gutterBottom>
+                <Typography variant="h4" gutterBottom>
                     Search Results
                 </Typography>
                 <Grid container spacing={3}>
@@ -164,9 +122,6 @@ const ResultsContent = () => {
                                                 borderTopLeftRadius: "8px",
                                                 borderTopRightRadius: "8px",
                                             }}
-                                            onError={() =>
-                                                console.error(`Failed to load image: ${venue.images[0]}`)
-                                            }
                                         />
                                     )}
                                     <CardContent>
@@ -177,11 +132,10 @@ const ResultsContent = () => {
                                             Location: {venue.city}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Event Type: {venue.eventType} {/* Changed from seatingType */}
+                                            Event Type: {venue.eventType}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Capacity: {venue.capacity.seated} seated,{" "}
-                                            {venue.capacity.standing} standing
+                                            Capacity: {venue.capacity.seated} seated
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Square Footage: {venue.squareFootage} sq ft
@@ -201,7 +155,7 @@ const ResultsContent = () => {
             {selectedVenue && (
                 <Dialog open={true} onClose={handleClose} maxWidth="md" fullWidth>
                     <DialogTitle>
-                        <Typography variant="h6" component="h2" sx={{ fontWeight: "bold" }}>
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                             {selectedVenue.name}
                         </Typography>
                         <Typography variant="body2" color="textSecondary" sx={{ marginTop: 0.5 }}>

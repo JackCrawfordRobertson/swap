@@ -101,13 +101,6 @@ const VenueFormUI = ({
               fullWidth
               sx={{ marginBottom: 2 }}
             />
-            <TextField
-              label={`Standing Capacity for ${eventType} Style`}
-              value={capacity.standing}
-              onChange={(e) => handleCapacityChange(e, "standing")}
-              fullWidth
-              sx={{ marginBottom: 2 }}
-            />
           </>
         )}
 

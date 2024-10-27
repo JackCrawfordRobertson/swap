@@ -102,8 +102,8 @@ const registerWithEmail = async (email, password, username) => {
     });
 
     // Send admin approval request email with approval/disapproval links
-    const appUrl = process.env.APP_URL || "http://localhost:3000";
-    const approvalLink = `${appUrl}/api/approveUser?userId=${userDoc.id}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+        const approvalLink = `${appUrl}/api/approveUser?userId=${userDoc.id}`;
     const disapprovalLink = `${appUrl}/api/disapproveUser?userId=${userDoc.id}`;
     const adminContent = `User <b>${username}</b> <br><br> <b>(${email})</b> has requested an account.`;
 

@@ -76,7 +76,7 @@ const VenueFormLogic = ({ user, onClose }) => {
     setName("");
     setLocation("");
     setEventType(""); // Reset eventType
-    setCapacity({ seated: "", standing: "" });
+    setCapacity({ seated: "" });
     setSquareFootage("");
     setDescription("");
     setBookingEmail("");
