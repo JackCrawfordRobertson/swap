@@ -11,6 +11,10 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
 
+  if (!userId) {
+    return NextResponse.json({ message: 'User ID is required' }, { status: 400 });
+  }
+
   try {
     // Fetch user from 'pendingUsers' collection using Admin SDK
     const userRef = db.collection('pendingUsers').doc(userId);
@@ -20,11 +24,12 @@ export async function GET(request) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const { email, username } = userDoc.data();
+    // Safely access data and add default fallbacks
+    const userData = userDoc.data() || {}; // Provide empty object if undefined
+    const { email = null, username = null } = userData;
 
-    // Validate retrieved data before proceeding
     if (!email || !username) {
-      throw new Error('Invalid user data');
+      return NextResponse.json({ message: 'User data is incomplete' }, { status: 400 });
     }
 
     // Delete the user from 'pendingUsers' collection
