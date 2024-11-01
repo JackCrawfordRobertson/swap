@@ -1,54 +1,60 @@
 // src/components/logIn/LogInUI.js
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
-  Typography,
-  TextField,
-  Grid,
   Button,
-  CircularProgress,
+  Checkbox,
+  CssBaseline,
+  Divider,
+  FormControlLabel,
+  FormLabel,
+  FormControl,
   Link as MuiLink,
+  TextField,
+  Typography,
+  Stack,
+  Card as MuiCard,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ForgotPassword from './ForgotPassword';
 
-const BackgroundBox = styled(Box)(({ theme }) => ({
+const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
+  alignSelf: 'center',
+  width: '100%',
+  padding: theme.spacing(4),
+  gap: theme.spacing(2),
+  margin: 'auto',
+  [theme.breakpoints.up('sm')]: {
+    maxWidth: '450px',
+  },
+  boxShadow:
+    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+}));
+
+const SignInContainer = styled(Stack)(({ theme }) => ({
   minHeight: '100vh',
-  textAlign: 'center',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  padding: theme.spacing(4),
-  color: theme.palette.common.white,
+  padding: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(4),
+  },
+  '&::before': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    zIndex: -1,
+    inset: 0,
+    backgroundImage:
+      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
+    backgroundRepeat: 'no-repeat',
+  },
 }));
 
-const Overlay = styled(Box)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: '#5fa7d9',
-});
-
-const ContentBox = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  zIndex: 1,
-  padding: theme.spacing(4),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-  color: theme.palette.text.primary,
-  boxShadow: theme.shadows[3],
-  maxWidth: 400,
-  width: '100%',
-}));
-
-const LogInUI = ({
+export default function LogInUI({
   mode,
   email,
   password,
@@ -64,120 +70,166 @@ const LogInUI = ({
   switchToReset,
   handleSignInWithEmail,
   handleRegisterWithEmail,
-  handleResetPassword,
-}) => {
+  handleResetPassword, // Ensure this is passed as a prop
+}) {
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const displayErrorToast = (message) => {
+    toast.error(message, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      icon: false,
+    });
+  };
+
+  const validateInputs = () => {
+    let isValid = true;
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setEmailError(true);
+      displayErrorToast('Please enter a valid email address.');
+      isValid = false;
+    } else {
+      setEmailError(false);
+    }
+
+    if (mode !== 'reset' && (!password || password.length < 6)) {
+      setPasswordError(true);
+      displayErrorToast('Password must be at least 6 characters long.');
+      isValid = false;
+    } else {
+      setPasswordError(false);
+    }
+
+    return isValid;
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (validateInputs()) {
+      mode === 'login'
+        ? handleSignInWithEmail()
+        : mode === 'register'
+        ? handleRegisterWithEmail()
+        : handleResetPassword();
+    }
+  };
+
   return (
-    <BackgroundBox>
-      <Overlay />
-      <ContentBox>
-        <Typography variant="h4" gutterBottom>
-          Welcome to Swap
+    <SignInContainer direction="column" justifyContent="center">
+      <CssBaseline />
+      <Card variant="outlined">
+        <Typography component="h1" variant="h5" align="center">
+          {mode === 'login' ? 'Sign In' : mode === 'register' ? 'Register' : 'Reset Password'}
         </Typography>
-
-        {mode === 'login' && <Typography>Please log in to continue.</Typography>}
-        {mode === 'register' && <Typography>Create a new account.</Typography>}
-        {mode === 'reset' && <Typography>Reset your password.</Typography>}
-
-        <Grid container spacing={2} justifyContent="center">
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           {mode === 'register' && (
-            <Grid item xs={12}>
+            <FormControl>
+              <FormLabel htmlFor="username">Username</FormLabel>
               <TextField
-                label="Username"
+                id="username"
                 value={username}
                 onChange={handleUsernameChange}
                 error={!isUsernameValid}
                 helperText={!isUsernameValid && 'Username must be at least 3 characters long.'}
                 fullWidth
+                required
               />
-            </Grid>
+            </FormControl>
           )}
-          <Grid item xs={12}>
+          <FormControl>
+            <FormLabel htmlFor="email">Email</FormLabel>
             <TextField
-              label="Email"
+              id="email"
+              type="email"
               value={email}
               onChange={handleEmailChange}
-              error={!isEmailValid}
-              helperText={!isEmailValid && 'Please enter a valid email address.'}
+              error={emailError}
               fullWidth
+              required
             />
-          </Grid>
+          </FormControl>
           {mode !== 'reset' && (
-            <Grid item xs={12}>
+            <FormControl>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <FormLabel htmlFor="password">Password</FormLabel>
+                {mode === 'login' && (
+                  <MuiLink
+                    component="button"
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    variant="body2"
+                    sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Forgot your password?
+                  </MuiLink>
+                )}
+              </Box>
               <TextField
-                label="Password"
+                id="password"
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
+                error={passwordError}
                 fullWidth
+                required
               />
-            </Grid>
+            </FormControl>
           )}
-          <Grid item xs={12}>
-            {mode === 'login' && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSignInWithEmail}
-                fullWidth
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} /> : 'Login with Email'}
-              </Button>
-            )}
-            {mode === 'register' && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleRegisterWithEmail}
-                fullWidth
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} /> : 'Register with Email'}
-              </Button>
-            )}
-            {mode === 'reset' && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleResetPassword}
-                fullWidth
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} /> : 'Send Password Reset Email'}
-              </Button>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            {mode === 'login' && (
-              <Box>
-                <Typography>
-                  Don't have an account? <MuiLink onClick={switchToRegister}>Register here</MuiLink>
-                </Typography>
-                <Typography>
-                  Forgot your password? <MuiLink onClick={switchToReset}>Reset Password</MuiLink>
-                </Typography>
-              </Box>
-            )}
-            {mode === 'register' && (
-              <Box>
-                <Typography>
-                  Already have an account? <MuiLink onClick={switchToLogin}>Login here</MuiLink>
-                </Typography>
-              </Box>
-            )}
-            {mode === 'reset' && (
-              <Box>
-                <Typography>
-                  Remembered your password? <MuiLink onClick={switchToLogin}>Login here</MuiLink>
-                </Typography>
-              </Box>
-            )}
-          </Grid>
-        </Grid>
-        <ToastContainer /> {/* Only shows toast notifications */}
-      </ContentBox>
-    </BackgroundBox>
+          {mode === 'login' && (
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+          )}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : mode === 'login' ? 'Sign In' : mode === 'register' ? 'Register' : 'Send Reset Email'}
+          </Button>
+        </Box>
+        <Divider>or</Divider>
+        <Typography textAlign="center">
+          {mode === 'login' ? (
+            <>
+              Don&apos;t have an account?{' '}
+              <MuiLink onClick={switchToRegister} sx={{ cursor: 'pointer' }}>
+                Register
+              </MuiLink>
+            </>
+          ) : mode === 'register' ? (
+            <>
+              Already have an account?{' '}
+              <MuiLink onClick={switchToLogin} sx={{ cursor: 'pointer' }}>
+                Sign in
+              </MuiLink>
+            </>
+          ) : (
+            <>
+              Remembered your password?{' '}
+              <MuiLink onClick={switchToLogin} sx={{ cursor: 'pointer' }}>
+                Sign in
+              </MuiLink>
+            </>
+          )}
+        </Typography>
+        <ToastContainer />
+      </Card>
+      <ForgotPassword open={open} handleClose={() => setOpen(false)} handleResetPassword={handleResetPassword} />
+    </SignInContainer>
   );
-};
-
-export default LogInUI;
+}

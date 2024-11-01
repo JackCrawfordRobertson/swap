@@ -9,11 +9,24 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, addDoc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
 
-import { createUserRegistrationTemplate, createAdminApprovalTemplate } from "@/utils/email/emailTemplate";
+import {
+  createUserRegistrationTemplate,
+  createAdminApprovalTemplate,
+  createPasswordResetTemplate,
+} from "@/utils/email/emailTemplate";
 import { sendEmail } from "@/utils/services/emailService";
 
 // Allowed email domains
 const allowedDomains = ["aviva.com", "ice-hub.biz", "ya-ya.co.uk", "jack-robertson.co.uk"];
+
+/**
+ * Determines whether the app is running in production or development
+ * and sets the correct app URL based on the environment.
+ */
+const isProduction = process.env.NODE_ENV === 'production';
+const appUrl = isProduction
+  ? process.env.NEXT_PUBLIC_APP_URL_PROD
+  : process.env.NEXT_PUBLIC_APP_URL_DEV;
 
 /**
  * Checks if the provided email has an allowed domain.
@@ -46,8 +59,6 @@ const signInWithEmail = async (email, password) => {
         throw new Error('Invalid email address format.');
       case 'auth/user-disabled':
         throw new Error('This user has been disabled. Please contact support.');
-      case 'auth/invalid-credential':
-        throw new Error('Invalid credentials. Please check your login details.');
       default:
         throw new Error('An error occurred during sign-in. Please try again later.');
     }
@@ -102,8 +113,7 @@ const registerWithEmail = async (email, password, username) => {
     });
 
     // Send admin approval request email with approval/disapproval links
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-        const approvalLink = `${appUrl}/api/approveUser?userId=${userDoc.id}`;
+    const approvalLink = `${appUrl}/api/approveUser?userId=${userDoc.id}`;
     const disapprovalLink = `${appUrl}/api/disapproveUser?userId=${userDoc.id}`;
     const adminContent = `User <b>${username}</b> <br><br> <b>(${email})</b> has requested an account.`;
 
@@ -138,7 +148,22 @@ const resetPassword = async (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) throw new Error("Please enter a valid email address.");
 
-    await sendPasswordResetEmail(auth, email);
+    // Generate Firebase password reset email with dynamic URL settings
+    const actionCodeSettings = {
+      url: `${appUrl}/reset-password`,
+      handleCodeInApp: true,
+    };
+
+    await sendPasswordResetEmail(auth, email, actionCodeSettings);
+
+    // Generate the reset link and include it in the email template
+    const resetLink = `${actionCodeSettings.url}?email=${encodeURIComponent(email)}`;
+    await sendEmail({
+      to: email,
+      from: "support@ice-hub.biz",
+      subject: "Password Reset Request",
+      html: createPasswordResetTemplate({ resetLink }),
+    });
   } catch (error) {
     switch (error.code) {
       case "auth/user-not-found":
