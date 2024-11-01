@@ -26,7 +26,7 @@ const storage = getStorage(app);
 
 // Conditionally set Firestore logging level based on environment
 if (process.env.NODE_ENV === "production") {
-  setLogLevel("debug"); // Disable logging in production
+  setLogLevel("disabled"); // Disable logging in production
 } else {
   setLogLevel("warn"); // Reduced logging level in development (can also use "debug" for detailed logs)
 }
