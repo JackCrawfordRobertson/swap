@@ -5,11 +5,13 @@ import { createApprovalEmailTemplate } from '@/utils/email/emailTemplate';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export async function GET(request) {
+export async function POST(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
 
-  if (!userId) return NextResponse.json({ message: 'Invalid or missing user ID.' }, { status: 400 });
+  if (!userId) {
+    return NextResponse.json({ message: 'Invalid or missing user ID.' }, { status: 400 });
+  }
 
   try {
     const userRef = db.collection('pendingUsers').doc(userId);
@@ -24,6 +26,7 @@ export async function GET(request) {
       return NextResponse.json({ message: 'User data incomplete.' }, { status: 422 });
     }
 
+    // Create the user in Firebase Auth
     const userRecord = await auth.createUser({ email, password, displayName: username });
     await db.collection('users').doc(userRecord.uid).set({
       email,
@@ -31,15 +34,21 @@ export async function GET(request) {
       createdAt: new Date(),
     });
 
+    // Remove the user from 'pendingUsers' collection
     await userRef.delete();
 
+    // Send approval email
     const emailContent = createApprovalEmailTemplate({ username });
-    await sgMail.send({
-      to: email,
-      from: 'support@ice-hub.biz',
-      subject: 'Registration Approved - Welcome!',
-      html: emailContent,
-    });
+    try {
+      await sgMail.send({
+        to: email,
+        from: 'support@ice-hub.biz',
+        subject: 'Registration Approved - Welcome!',
+        html: emailContent,
+      });
+    } catch (emailError) {
+      console.warn('Email send failed:', emailError.message);
+    }
 
     return NextResponse.json({ message: 'User approved and added to Firebase Auth.' }, { status: 200 });
 

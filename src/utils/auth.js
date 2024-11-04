@@ -7,13 +7,8 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { doc, setDoc, addDoc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
-
-import {
-  createUserRegistrationTemplate,
-  createAdminApprovalTemplate,
-  createPasswordResetTemplate,
-} from "@/utils/email/emailTemplate";
+import { doc, setDoc, addDoc, getDocs, collection, query, where } from "firebase/firestore";
+import { createUserRegistrationTemplate, createAdminApprovalTemplate } from "@/utils/email/emailTemplate";
 import { sendEmail } from "@/utils/services/emailService";
 
 // Allowed email domains
@@ -148,22 +143,16 @@ const resetPassword = async (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) throw new Error("Please enter a valid email address.");
 
-    // Generate Firebase password reset email with dynamic URL settings
+    // Set up Firebase's action code settings for reset with dynamic URL
     const actionCodeSettings = {
       url: `${appUrl}/reset-password`,
       handleCodeInApp: true,
     };
 
+    // Send the password reset email using Firebase's built-in method
     await sendPasswordResetEmail(auth, email, actionCodeSettings);
 
-    // Generate the reset link and include it in the email template
-    const resetLink = `${actionCodeSettings.url}?email=${encodeURIComponent(email)}`;
-    await sendEmail({
-      to: email,
-      from: "support@ice-hub.biz",
-      subject: "Password Reset Request",
-      html: createPasswordResetTemplate({ resetLink }),
-    });
+    return { success: true, message: "Password reset email sent successfully." };
   } catch (error) {
     switch (error.code) {
       case "auth/user-not-found":
@@ -175,6 +164,7 @@ const resetPassword = async (email) => {
     }
   }
 };
+
 
 /**
  * Logs out the currently authenticated user.
