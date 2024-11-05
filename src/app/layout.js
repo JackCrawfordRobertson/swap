@@ -4,6 +4,7 @@ import '../styles/globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import ThemeProviderWrapper from './components/ThemeProviderWrapper'; // Import the wrapper
 import Footer from '@/app/components/Footer/Footer'; // Import the Footer component
+import Script from 'next/script';
 
 export const metadata = {
   title: 'SWAP | Event Space Sharing Made Simple',
@@ -33,6 +34,15 @@ export const generateViewport = () => ({
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* Asynchronously load the Google Maps API */}
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_GEOCODE_API_KEY}&libraries=places`}
+          strategy="afterInteractive"
+          async
+          defer
+        />
+      </head>
       <body>
         <AuthProvider>
           <ThemeProviderWrapper>

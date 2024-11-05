@@ -1,48 +1,95 @@
-
 "use client";
 
 import React, { useState, useEffect, useContext } from "react";
 import { getVenues } from "@/utils/firestore";
 import { AuthContext } from "@/context/AuthContext";
 import SearchUI from "./SearchUI"; // Import the UI component
+import { toast } from "react-toastify";
 
 export default function SearchLogic() {
-    const [eventType, seteventType] = useState("");
+    const [eventType, setEventType] = useState("");
     const [guests, setGuests] = useState("");
     const [location, setLocation] = useState("");
     const [cities, setCities] = useState([]);
-    const [eventTypes, seteventTypes] = useState([]);
+    const [eventTypes, setEventTypes] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
-        const fetchCitiesAndeventTypes = async () => {
+        const fetchCitiesAndEventTypes = async () => {
             try {
                 const venues = await getVenues();
-                const uniqueCities = new Set();
-                const uniqueeventTypes = new Set();
+                const citySet = new Set();
+                const eventTypeSet = new Set();
 
                 for (const venue of venues) {
                     if (venue.location) {
-                        uniqueCities.add(venue.location);
+                        const cityName = await extractCityFromAddress(venue.location);
+                        if (cityName) {
+                            citySet.add(cityName);
+                            console.log("City added:", cityName);  // Log each city added
+                        }
                     }
                     if (venue.eventType) {
-                        uniqueeventTypes.add(venue.eventType);
+                        eventTypeSet.add(venue.eventType);
+                        console.log("Event Type added:", venue.eventType);  // Log each event type added
                     }
                 }
 
-                setCities(Array.from(uniqueCities));
-                seteventTypes(Array.from(uniqueeventTypes));
+                setCities(Array.from(citySet));
+                setEventTypes(Array.from(eventTypeSet));
+                console.log("Cities:", Array.from(citySet));  // Log final cities array
+                console.log("Event Types:", Array.from(eventTypeSet));  // Log final event types array
             } catch (error) {
                 console.error("Error fetching venues:", error);
+                toast.error("Error fetching data. Please try again.");
             }
         };
 
-        fetchCitiesAndeventTypes();
+        fetchCitiesAndEventTypes();
     }, []);
 
-    const handleeventTypeChange = (event) => {
-        seteventType(event.target.value);
+    const extractCityFromAddress = async (address) => {
+        if (!window.google || !window.google.maps) {
+            console.warn("Google Maps API not loaded yet.");
+            return null;
+        }
+
+        const geocoder = new window.google.maps.Geocoder();
+
+        return new Promise((resolve) => {
+            geocoder.geocode({ address }, (results, status) => {
+                if (status === "OK" && results.length > 0) {
+                    const addressComponents = results[0].address_components;
+                    const cityComponent = addressComponents.find((component) =>
+                        component.types.includes("locality") || component.types.includes("postal_town")
+                    );
+                    const cityName = cityComponent ? cityComponent.long_name : null;
+                    const countryComponent = addressComponents.find((component) =>
+                        component.types.includes("country")
+                    );
+                    const countryCode = countryComponent ? countryComponent.short_name : null;
+                    let suffix = "";
+                    if (countryCode === "GB") {
+                        suffix = "UK";
+                    } else if (["FR", "DE", "ES", "IT", "NL", "BE", "LU", "AT", "PT", "FI", "IE", "GR"].includes(countryCode)) {
+                        suffix = "EU";
+                    } else {
+                        suffix = countryCode;
+                    }
+                    const cityWithSuffix = cityName && suffix ? `${cityName}, ${suffix}` : cityName;
+                    console.log("Formatted city with suffix:", cityWithSuffix);  // Log formatted city with suffix
+                    resolve(cityWithSuffix);
+                } else {
+                    console.error("Geocoding failed:", status);
+                    resolve(null);
+                }
+            });
+        });
+    };
+
+    const handleEventTypeChange = (event) => {
+        setEventType(event.target.value);
     };
 
     const handleGuestsChange = (event) => {
@@ -58,6 +105,7 @@ export default function SearchLogic() {
 
     const handleSearch = () => {
         if (user) {
+            console.log("Search triggered with:", { eventType, guests, location });
             const queryParams = new URLSearchParams({
                 eventType,
                 guests,
@@ -91,7 +139,7 @@ export default function SearchLogic() {
             eventTypes={eventTypes}
             openDialog={openDialog}
             isSearchDisabled={isSearchDisabled}
-            handleeventTypeChange={handleeventTypeChange}
+            handleEventTypeChange={handleEventTypeChange}
             handleGuestsChange={handleGuestsChange}
             handleLocationChange={handleLocationChange}
             handleSearch={handleSearch}

@@ -20,6 +20,7 @@ const Footer = () => {
       }}
     >
       <Box sx={{ paddingLeft: '20px' }}>
+        {/* Remove nested MuiLink inside Link */}
         <Link href="/" passHref>
           <MuiLink>
             <Image
@@ -32,14 +33,21 @@ const Footer = () => {
         </Link>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', paddingRight: '20px' }}>
-        <MuiLink href="/privacy" underline="none" color="inherit">
-          <Typography variant="body2">Privacy Policy</Typography>
-        </MuiLink>
-        <MuiLink href="/terms" underline="none" color="inherit">
-          <Typography variant="body2">Terms & Conditions</Typography>
-        </MuiLink>
+        <Link href="/privacy" passHref>
+          <MuiLink underline="none" color="inherit">
+            <Typography variant="body2">Privacy Policy</Typography>
+          </MuiLink>
+        </Link>
+        <Link href="/terms" passHref>
+          <MuiLink underline="none" color="inherit">
+            <Typography variant="body2">Terms & Conditions</Typography>
+          </MuiLink>
+        </Link>
         <Typography variant="body2" color="textSecondary">
-          For assistance, contact <MuiLink href="mailto:support@ice-hub.biz" color="inherit">support@ice-hub.biz</MuiLink>
+          For assistance, contact{' '}
+          <MuiLink href="mailto:support@ice-hub.biz" color="inherit">
+            support@ice-hub.biz
+          </MuiLink>
         </Typography>
       </Box>
     </Box>

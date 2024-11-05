@@ -1,14 +1,13 @@
 // src/components/VenueForm/VenueFormLogic.js
 
-"use client";
 import React, { useState } from "react";
 import { addVenue, uploadImage } from "@/utils/firestore";
 import VenueFormUI from "./VenueFormUI"; // Import the UI component
 
 const VenueFormLogic = ({ user, onClose }) => {
   const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [eventType, setEventType] = useState(""); // Changed from seatingType to eventType
+  const [location, setLocation] = useState(""); // Location state
+  const [eventType, setEventType] = useState("");
   const [capacity, setCapacity] = useState({ seated: "", standing: "" });
   const [squareFootage, setSquareFootage] = useState("");
   const [description, setDescription] = useState("");
@@ -25,7 +24,7 @@ const VenueFormLogic = ({ user, onClose }) => {
   const validate = () => {
     const newErrors = {};
     if (!name) newErrors.name = "Venue Name is required";
-    if (!location) newErrors.location = "Location is required";
+    if (!location) newErrors.location = "Location is required"; // Validation for location
     if (!bookingEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingEmail)) {
       newErrors.bookingEmail = "Valid email is required";
     }
@@ -45,7 +44,7 @@ const VenueFormLogic = ({ user, onClose }) => {
       const venue = {
         name,
         location,
-        eventType, // Changed field
+        eventType,
         capacity,
         squareFootage,
         description,
@@ -74,8 +73,8 @@ const VenueFormLogic = ({ user, onClose }) => {
 
   const resetForm = () => {
     setName("");
-    setLocation("");
-    setEventType(""); // Reset eventType
+    setLocation(""); // Reset location
+    setEventType("");
     setCapacity({ seated: "" });
     setSquareFootage("");
     setDescription("");
@@ -112,12 +111,13 @@ const VenueFormLogic = ({ user, onClose }) => {
     setCapacity({ ...capacity, [key]: e.target.value });
   };
 
+  // Pass `location`, `setLocation`, and `errors.location` as props
   return (
     <VenueFormUI
       name={name}
       setName={setName}
-      location={location}
-      setLocation={setLocation}
+      location={location}              // Pass location state
+      setLocation={setLocation}        // Pass setLocation function
       eventType={eventType}
       setEventType={setEventType}
       capacity={capacity}
