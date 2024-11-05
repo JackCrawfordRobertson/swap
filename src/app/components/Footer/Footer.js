@@ -1,8 +1,7 @@
-// src/components/Footer.js
-
 import React from 'react';
-import { Box, Link, Typography } from '@mui/material';
+import { Box, Link as MuiLink, Typography } from '@mui/material';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
@@ -16,25 +15,31 @@ const Footer = () => {
         padding: '16px',
         backgroundColor: '#f8f8f8',
         borderTop: '1px solid #e0e0e0',
+        minHeight: '10vh', // Set minimum height
+        maxHeight: '10vh', // Set maximum height
       }}
     >
       <Box sx={{ paddingLeft: '20px' }}>
-        <Image
-          src="/Swap.svg" // Replace with the path to your logo
-          alt="Logo"
-          width={100}
-          height={50}
-        />
+        <Link href="/" passHref>
+          <MuiLink>
+            <Image
+              src="/Swap.svg" // Replace with the path to your logo
+              alt="Logo"
+              width={100}
+              height={50}
+            />
+          </MuiLink>
+        </Link>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', paddingRight: '20px' }}>
-        <Link href="/privacy" underline="none" color="inherit">
+        <MuiLink href="/privacy" underline="none" color="inherit">
           <Typography variant="body2">Privacy Policy</Typography>
-        </Link>
-        <Link href="/terms" underline="none" color="inherit">
+        </MuiLink>
+        <MuiLink href="/terms" underline="none" color="inherit">
           <Typography variant="body2">Terms & Conditions</Typography>
-        </Link>
+        </MuiLink>
         <Typography variant="body2" color="textSecondary">
-          For assistance, contact <Link href="mailto:support@ice-hub.biz" color="inherit">support@ice-hub.biz</Link>
+          For assistance, contact <MuiLink href="mailto:support@ice-hub.biz" color="inherit">support@ice-hub.biz</MuiLink>
         </Typography>
       </Box>
     </Box>
