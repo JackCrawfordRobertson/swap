@@ -52,11 +52,12 @@ const UserPostsUI = ({
                   <img
                     src={post.images[0]}
                     alt={`preview-${post.id}`}
-                    width="100%"
+                    width="40%"
                     style={{
                       objectFit: "cover",
                       borderRadius: "8px",
                       marginBottom: 8,
+                      marginRight: 8,
                     }}
                   />
                 )}

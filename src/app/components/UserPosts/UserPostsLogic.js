@@ -65,8 +65,13 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   const handleEditClose = () => setOpenEdit(false);
 
   const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditData({ ...editData, [name]: value });
+    if (e && e.target) {
+      const { name, value } = e.target;
+      setEditData({ ...editData, [name]: value });
+    } else {
+      // When we pass an object directly
+      setEditData({ ...editData, ...e });
+    }
   };
 
   const handleImageChange = (e) => {
