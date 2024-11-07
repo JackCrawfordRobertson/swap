@@ -40,7 +40,7 @@ const Footer = () => {
         </Link>
         <Link href="/terms" passHref>
           <MuiLink underline="none" color="inherit">
-            <Typography variant="body2">Terms & Conditions</Typography>
+            <Typography variant="body2">Terms & Conditions & Big Balls</Typography>
           </MuiLink>
         </Link>
         <Typography variant="body2" color="textSecondary">
