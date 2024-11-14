@@ -5,7 +5,7 @@ import { createApprovalEmailTemplate } from '@/utils/email/emailTemplate';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export async function POST(request) {
+export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
 
@@ -26,7 +26,6 @@ export async function POST(request) {
       return NextResponse.json({ message: 'User data incomplete.' }, { status: 422 });
     }
 
-    // Create the user in Firebase Auth
     const userRecord = await auth.createUser({ email, password, displayName: username });
     await db.collection('users').doc(userRecord.uid).set({
       email,
@@ -34,10 +33,8 @@ export async function POST(request) {
       createdAt: new Date(),
     });
 
-    // Remove the user from 'pendingUsers' collection
     await userRef.delete();
 
-    // Send approval email
     const emailContent = createApprovalEmailTemplate({ username });
     try {
       await sgMail.send({
