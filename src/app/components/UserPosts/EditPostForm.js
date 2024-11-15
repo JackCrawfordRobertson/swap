@@ -11,7 +11,6 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
-  Container,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
@@ -27,14 +26,19 @@ const EditPostForm = ({
   handleEditClose,
 }) => {
   return (
-    <Container
-      maxWidth="md"
+    <Box
       sx={{
-        backgroundColor: "background.paper",
+        position: "absolute", // Keep the popup in the middle of the screen
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)", // Centre the popup
+        width: "90vw", // Set width to 90% of the viewport
+        height: "90vh", // Set height to 90% of the viewport
+        bgcolor: "background.paper",
         borderRadius: "8px",
-        boxShadow: 3,
-        padding: { xs: 2, sm: 4 },
-        marginY: { xs: 2, sm: 4 },
+        boxShadow: 24,
+        overflow: "auto", // Enable scrolling for content overflow
+        padding: { xs: 2, sm: 4 }, // Responsive padding
       }}
     >
       <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={2}>
@@ -182,7 +186,7 @@ const EditPostForm = ({
       >
         Delete
       </Button>
-    </Container>
+    </Box>
   );
 };
 
