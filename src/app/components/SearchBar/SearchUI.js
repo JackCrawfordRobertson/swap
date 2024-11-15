@@ -1,5 +1,3 @@
-// src/components/CategorySelectUI.js
-
 import React from "react";
 import {
     Box,
@@ -26,11 +24,11 @@ const SearchUI = ({
     eventType,
     guests,
     location,
-    cities,
-    eventTypes,
+    cities = [],
+    eventTypes = [],
     openDialog,
     isSearchDisabled,
-    handleeventTypeChange,
+    handleEventTypeChange, // Corrected handler name
     handleGuestsChange,
     handleLocationChange,
     handleSearch,
@@ -54,19 +52,20 @@ const SearchUI = ({
                     justifyContent: "space-between",
                     width: "100%",
                     gap: 2,
-                    marginBottom: isMobile ? '0' : '4'
+                    marginBottom: isMobile ? "0" : "4",
                 }}
             >
+                {/* Event Type Dropdown */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
+                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
                     onMouseDown={handleInteraction}
                     disabled={eventTypes.length === 0}
                 >
                     <InputLabel>Event Type</InputLabel>
                     <Select
                         value={eventType}
-                        onChange={handleeventTypeChange}
+                        onChange={handleEventTypeChange} // Updated handler
                         label="Event Type"
                         startAdornment={
                             <InputAdornment position="start">
@@ -83,7 +82,12 @@ const SearchUI = ({
                     </Select>
                 </FormControl>
 
-                <FormControl variant="outlined" sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }} onMouseDown={handleInteraction}>
+                {/* Guests Input */}
+                <FormControl
+                    variant="outlined"
+                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
+                    onMouseDown={handleInteraction}
+                >
                     <TextField
                         value={guests}
                         onChange={handleGuestsChange}
@@ -100,16 +104,17 @@ const SearchUI = ({
                     />
                 </FormControl>
 
+                {/* Location Dropdown */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
+                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
                     onMouseDown={handleInteraction}
                     disabled={cities.length === 0}
                 >
                     <InputLabel>Location</InputLabel>
                     <Select
                         value={location}
-                        onChange={handleLocationChange}
+                        onChange={handleLocationChange} // Updated handler
                         label="Location"
                         startAdornment={
                             <InputAdornment position="start">
@@ -126,6 +131,7 @@ const SearchUI = ({
                     </Select>
                 </FormControl>
 
+                {/* Search Button */}
                 <Button
                     variant="contained"
                     sx={{
@@ -143,6 +149,7 @@ const SearchUI = ({
                 </Button>
             </Box>
 
+            {/* Dialog */}
             <Dialog open={openDialog} onClose={handleDialogClose}>
                 <DialogTitle>
                     <Typography variant="h4" sx={{ fontWeight: "bold", color: "#000" }}>
@@ -151,7 +158,8 @@ const SearchUI = ({
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Login" button and make magic happen!
+                        Looks like you're not logged in yet! But no worries, we’ve got you covered.
+                        Hit the "Login" button and make magic happen!
                     </Typography>
                     <Typography variant="body2" sx={{ fontStyle: "italic", color: "#757575" }}>
                         (It only takes a few seconds, and we promise it’s worth it!)
