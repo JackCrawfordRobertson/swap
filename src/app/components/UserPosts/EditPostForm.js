@@ -32,7 +32,8 @@ const EditPostForm = ({
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        width: "90%", // Default width
+        width: "50vh", // Default width
+        height: "80vh", // Default height
         maxWidth: 700, // Max width for larger screens
         bgcolor: "background.paper",
         border: "2px solid #000",
