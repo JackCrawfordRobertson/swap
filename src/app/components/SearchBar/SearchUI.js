@@ -1,3 +1,5 @@
+// src/components/CategorySelectUI.js
+
 import React from "react";
 import {
     Box,
@@ -24,11 +26,11 @@ const SearchUI = ({
     eventType,
     guests,
     location,
-    cities = [],
-    eventTypes = [],
+    cities,
+    eventTypes,
     openDialog,
     isSearchDisabled,
-    handleEventTypeChange,
+    handleeventTypeChange,
     handleGuestsChange,
     handleLocationChange,
     handleSearch,
@@ -52,20 +54,19 @@ const SearchUI = ({
                     justifyContent: "space-between",
                     width: "100%",
                     gap: 2,
-                    marginBottom: isMobile ? "0" : "4",
+                    marginBottom: isMobile ? '0' : '4'
                 }}
             >
-                {/* Event Type Dropdown */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
+                    sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
                     onMouseDown={handleInteraction}
                     disabled={eventTypes.length === 0}
                 >
                     <InputLabel>Event Type</InputLabel>
                     <Select
                         value={eventType}
-                        onChange={handleEventTypeChange}
+                        onChange={handleeventTypeChange}
                         label="Event Type"
                         startAdornment={
                             <InputAdornment position="start">
@@ -82,12 +83,7 @@ const SearchUI = ({
                     </Select>
                 </FormControl>
 
-                {/* Guests Input */}
-                <FormControl
-                    variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
-                    onMouseDown={handleInteraction}
-                >
+                <FormControl variant="outlined" sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }} onMouseDown={handleInteraction}>
                     <TextField
                         value={guests}
                         onChange={handleGuestsChange}
@@ -104,10 +100,9 @@ const SearchUI = ({
                     />
                 </FormControl>
 
-                {/* Location Dropdown */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
+                    sx={{ flex: 1, width: isMobile ? '100%' : 'auto' }}
                     onMouseDown={handleInteraction}
                     disabled={cities.length === 0}
                 >
@@ -131,7 +126,6 @@ const SearchUI = ({
                     </Select>
                 </FormControl>
 
-                {/* Search Button */}
                 <Button
                     variant="contained"
                     sx={{
@@ -149,7 +143,6 @@ const SearchUI = ({
                 </Button>
             </Box>
 
-            {/* Dialog */}
             <Dialog open={openDialog} onClose={handleDialogClose}>
                 <DialogTitle>
                     <Typography variant="h4" sx={{ fontWeight: "bold", color: "#000" }}>
@@ -158,8 +151,7 @@ const SearchUI = ({
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                        Looks like you're not logged in yet! But no worries, we’ve got you covered.
-                        Hit the "Login" button and make magic happen!
+                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Login" button and make magic happen!
                     </Typography>
                     <Typography variant="body2" sx={{ fontStyle: "italic", color: "#757575" }}>
                         (It only takes a few seconds, and we promise it’s worth it!)

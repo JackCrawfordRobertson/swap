@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useContext, useMemo } from "react";
-import { onSnapshot, collection, query, where } from "firebase/firestore";
-import { db } from "@/utils/firebase"; // Firebase configuration
+import React, { useState, useEffect, useContext } from "react";
+import { getVenues } from "@/utils/firestore";
 import { AuthContext } from "@/context/AuthContext";
 import SearchUI from "./SearchUI"; // Import the UI component
 import { toast } from "react-toastify";
@@ -13,70 +12,81 @@ export default function SearchLogic() {
     const [location, setLocation] = useState("");
     const [cities, setCities] = useState([]);
     const [eventTypes, setEventTypes] = useState([]);
-    const [filteredResults, setFilteredResults] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
-        // Firestore real-time listeners for dropdown options
-        const unsubscribe = onSnapshot(
-            collection(db, "venues"), // Firestore collection name
-            (snapshot) => {
+        const fetchCitiesAndEventTypes = async () => {
+            try {
+                const venues = await getVenues();
                 const citySet = new Set();
                 const eventTypeSet = new Set();
 
-                snapshot.forEach((doc) => {
-                    const venue = doc.data();
+                for (const venue of venues) {
                     if (venue.location) {
-                        citySet.add(venue.location); // Add location to city set
+                        const cityName = await extractCityFromAddress(venue.location);
+                        if (cityName) {
+                            citySet.add(cityName);
+                            console.log("City added:", cityName);  // Log each city added
+                        }
                     }
                     if (venue.eventType) {
-                        eventTypeSet.add(venue.eventType); // Add event type to set
+                        eventTypeSet.add(venue.eventType);
+                        console.log("Event Type added:", venue.eventType);  // Log each event type added
                     }
-                });
+                }
 
                 setCities(Array.from(citySet));
                 setEventTypes(Array.from(eventTypeSet));
-            },
-            (error) => {
+                console.log("Cities:", Array.from(citySet));  // Log final cities array
+                console.log("Event Types:", Array.from(eventTypeSet));  // Log final event types array
+            } catch (error) {
                 console.error("Error fetching venues:", error);
-                toast.error("Error fetching dropdown data. Please try again.");
+                toast.error("Error fetching data. Please try again.");
             }
-        );
+        };
 
-        return () => unsubscribe(); // Cleanup listener on unmount
+        fetchCitiesAndEventTypes();
     }, []);
 
-    useEffect(() => {
-        // Firestore query for filtering results
-        const filterQuery = query(collection(db, "venues"));
+    const extractCityFromAddress = async (address) => {
+        if (!window.google || !window.google.maps) {
+            console.warn("Google Maps API not loaded yet.");
+            return null;
+        }
 
-        const unsubscribe = onSnapshot(
-            filterQuery,
-            (snapshot) => {
-                const filtered = snapshot.docs
-                    .map((doc) => doc.data())
-                    .filter((venue) => {
-                        const matchesEventType = eventType ? venue.eventType === eventType : true;
-                        const matchesGuests = guests ? parseInt(venue.capacity, 10) >= parseInt(guests, 10) : true;
-                        const matchesLocation = location ? venue.location === location : true;
+        const geocoder = new window.google.maps.Geocoder();
 
-                        return matchesEventType && matchesGuests && matchesLocation;
-                    });
-
-                setFilteredResults(filtered);
-            },
-            (error) => {
-                console.error("Error filtering venues:", error);
-                toast.error("Error filtering data. Please try again.");
-            }
-        );
-
-        return () => unsubscribe(); // Cleanup listener on unmount
-    }, [eventType, guests, location]);
-
-    const memoizedCities = useMemo(() => cities, [cities]);
-    const memoizedEventTypes = useMemo(() => eventTypes, [eventTypes]);
+        return new Promise((resolve) => {
+            geocoder.geocode({ address }, (results, status) => {
+                if (status === "OK" && results.length > 0) {
+                    const addressComponents = results[0].address_components;
+                    const cityComponent = addressComponents.find((component) =>
+                        component.types.includes("locality") || component.types.includes("postal_town")
+                    );
+                    const cityName = cityComponent ? cityComponent.long_name : null;
+                    const countryComponent = addressComponents.find((component) =>
+                        component.types.includes("country")
+                    );
+                    const countryCode = countryComponent ? countryComponent.short_name : null;
+                    let suffix = "";
+                    if (countryCode === "GB") {
+                        suffix = "UK";
+                    } else if (["FR", "DE", "ES", "IT", "NL", "BE", "LU", "AT", "PT", "FI", "IE", "GR"].includes(countryCode)) {
+                        suffix = "EU";
+                    } else {
+                        suffix = countryCode;
+                    }
+                    const cityWithSuffix = cityName && suffix ? `${cityName}, ${suffix}` : cityName;
+                    console.log("Formatted city with suffix:", cityWithSuffix);  // Log formatted city with suffix
+                    resolve(cityWithSuffix);
+                } else {
+                    console.error("Geocoding failed:", status);
+                    resolve(null);
+                }
+            });
+        });
+    };
 
     const handleEventTypeChange = (event) => {
         setEventType(event.target.value);
@@ -96,6 +106,12 @@ export default function SearchLogic() {
     const handleSearch = () => {
         if (user) {
             console.log("Search triggered with:", { eventType, guests, location });
+            const queryParams = new URLSearchParams({
+                eventType,
+                guests,
+                location,
+            }).toString();
+            window.location.href = `/results?${queryParams}`;
         } else {
             setOpenDialog(true);
         }
@@ -115,34 +131,20 @@ export default function SearchLogic() {
     const isSearchDisabled = !eventType && !guests && !location;
 
     return (
-        <>
-            <SearchUI
-                eventType={eventType}
-                guests={guests}
-                location={location}
-                cities={memoizedCities}
-                eventTypes={memoizedEventTypes}
-                openDialog={openDialog}
-                isSearchDisabled={isSearchDisabled}
-                handleEventTypeChange={handleEventTypeChange}
-                handleGuestsChange={handleGuestsChange}
-                handleLocationChange={handleLocationChange}
-                handleSearch={handleSearch}
-                handleInteraction={handleInteraction}
-                handleDialogClose={handleDialogClose}
-            />
-            <div>
-                {/* Display filtered results */}
-                <h3>Search Results:</h3>
-                {filteredResults.map((venue, index) => (
-                    <div key={index}>
-                        <p><strong>{venue.name}</strong></p>
-                        <p>Location: {venue.location}</p>
-                        <p>Capacity: {venue.capacity}</p>
-                        <p>Event Type: {venue.eventType}</p>
-                    </div>
-                ))}
-            </div>
-        </>
+        <SearchUI
+            eventType={eventType}
+            guests={guests}
+            location={location}
+            cities={cities}
+            eventTypes={eventTypes}
+            openDialog={openDialog}
+            isSearchDisabled={isSearchDisabled}
+            handleEventTypeChange={handleEventTypeChange}
+            handleGuestsChange={handleGuestsChange}
+            handleLocationChange={handleLocationChange}
+            handleSearch={handleSearch}
+            handleInteraction={handleInteraction}
+            handleDialogClose={handleDialogClose}
+        />
     );
 }
