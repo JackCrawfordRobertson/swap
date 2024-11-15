@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useContext, useMemo } from "react";
 import { onSnapshot, collection, query, where } from "firebase/firestore";
-import { db } from "@/utils/firebase"; // Firebase configuration
+import { db } from "@/config/firebaseConfig"; // Firebase configuration
 import { AuthContext } from "@/context/AuthContext";
 import SearchUI from "./SearchUI"; // Import the UI component
 import { toast } from "react-toastify";
