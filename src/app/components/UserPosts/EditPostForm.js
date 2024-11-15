@@ -11,6 +11,7 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
+  Container,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
@@ -26,34 +27,26 @@ const EditPostForm = ({
   handleEditClose,
 }) => {
   return (
-    <Box
+    <Container
+      maxWidth="md"
       sx={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "50vh", // Default width
-        height: "80vh", // Default height
-        maxWidth: 700, // Max width for larger screens
-        bgcolor: "background.paper",
-        border: "2px solid #000",
-        boxShadow: 24,
-        p: 3,
+        backgroundColor: "background.paper",
         borderRadius: "8px",
-        "@media (max-width:600px)": { // Adjust for mobile
-          width: "95%",
-          padding: 2,
-        },
+        boxShadow: 3,
+        padding: { xs: 2, sm: 4 },
+        marginY: { xs: 2, sm: 4 },
       }}
     >
-      <IconButton aria-label="close" onClick={handleEditClose} sx={{ position: "absolute", right: 8, top: 8 }}>
-        <CloseIcon />
-      </IconButton>
+      <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom={2}>
+        <Typography variant="h6" sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem" } }}>
+          Edit Venue
+        </Typography>
+        <IconButton aria-label="close" onClick={handleEditClose}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
 
-      <Typography variant="h6" sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem" }, mb: 2 }}>
-        Edit Venue
-      </Typography>
-
+      {/* Form Fields */}
       <TextField
         name="name"
         label="Venue Name"
@@ -91,7 +84,6 @@ const EditPostForm = ({
         </Select>
       </FormControl>
 
-      {/* Capacity Fields */}
       <TextField
         name="capacitySeated"
         label="Seated Capacity"
@@ -104,7 +96,6 @@ const EditPostForm = ({
         fullWidth
         sx={{ marginBottom: 2 }}
       />
-  
 
       <TextField
         label="Square Footage"
@@ -154,8 +145,8 @@ const EditPostForm = ({
         onChange={(e) => handleEditChange({ bookingEmail: e.target.value })}
         fullWidth
         required
-        sx={{ mb: 2, mt: 2}}
-          />
+        sx={{ marginY: 2 }}
+      />
 
       {/* Image Upload and Preview */}
       <Box sx={{ textAlign: "left", marginBottom: 2 }}>
@@ -166,13 +157,13 @@ const EditPostForm = ({
           variant="contained"
           component="label"
           startIcon={<PhotoCameraIcon />}
-          sx={{ width: "100%", mb: 2 }}
+          sx={{ width: "100%", marginBottom: 2 }}
         >
           Choose Files
           <input type="file" hidden multiple onChange={handleImageChange} />
         </Button>
+        <ImagePreview images={editData.images} handleRemoveImage={handleRemoveImage} />
       </Box>
-      <ImagePreview images={editData.images} handleRemoveImage={handleRemoveImage} />
 
       {/* Submit and Delete Buttons */}
       <Button
@@ -191,7 +182,7 @@ const EditPostForm = ({
       >
         Delete
       </Button>
-    </Box>
+    </Container>
   );
 };
 
