@@ -29,10 +29,10 @@ const appUrl = isProduction
  * @returns {boolean} - Returns true if the domain is allowed, false otherwise.
  */
 const isAllowedDomain = (email) => {
-  const emailDomain = email.split("@")[1]?.toLowerCase();
+  const emailDomain = email.split("@")[1]?.trim().toLowerCase();
   return allowedDomains.includes(emailDomain);
 };
-
+ 
 /**
  * Signs in a user with email and password.
  * @param {string} email - The user's email address.

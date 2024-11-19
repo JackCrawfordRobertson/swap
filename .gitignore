@@ -28,8 +28,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
-src/config/SWAPP_Firebase_Admin.json
+.env.development
+.env.production
+src/config/SWAPP_Firebase_Admin_dev.json
+src/config/SWAPP_Firebase_Admin_prod.json
+encodedServiceAccount_dev.txt
+encodedServiceAccount_prod.txt
 
 # vercel
 .vercel

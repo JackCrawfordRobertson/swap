@@ -82,7 +82,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageUpload = (e) => {
     setNewImages(e.target.files);
   };
 
