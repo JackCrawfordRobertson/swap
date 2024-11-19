@@ -1,5 +1,3 @@
-// src/components/UserPosts/UserPostsLogic.js
-
 import React, { useState, useEffect } from "react";
 import {
   getUserPosts,
@@ -75,7 +73,8 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   };
 
   const handleImageChange = (e) => {
-    setNewImages(e.target.files);
+    const files = Array.from(e.target.files);
+    setNewImages((prevImages) => [...prevImages, ...files]);
   };
 
   const handleRemoveImage = async (index) => {
@@ -91,13 +90,11 @@ const UserPostsLogic = ({ user, open, onClose }) => {
 
   const handleEditSubmit = async () => {
     try {
-      let imageUrls = editData.images;
+      let imageUrls = [...editData.images];
 
       // Upload new images if any
       if (newImages.length > 0) {
-        const imageUploadPromises = Array.from(newImages).map((image) =>
-          uploadImage(image)
-        );
+        const imageUploadPromises = newImages.map((image) => uploadImage(image));
         const newImageUrls = await Promise.all(imageUploadPromises);
         imageUrls = [...imageUrls, ...newImageUrls];
       }
@@ -112,6 +109,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
       setSnackbarMessage("Changes saved successfully!");
       setOpenSnackbar(true);
 
+      setNewImages([]); // Clear new images after submission
       setOpenEdit(false);
       fetchPosts();
     } catch (error) {

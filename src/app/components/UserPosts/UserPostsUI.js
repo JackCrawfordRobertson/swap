@@ -1,5 +1,3 @@
-// src/components/UserPosts/UserPostsUI.js
-
 import React from "react";
 import {
   Box,
@@ -12,7 +10,6 @@ import {
   ListItemSecondaryAction,
   Snackbar,
   Modal,
-  Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
