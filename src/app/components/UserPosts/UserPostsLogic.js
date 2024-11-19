@@ -57,6 +57,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
       hasAVFacilities: post.hasAVFacilities,
       hasCatering: post.hasCatering,
     });
+    setNewImages([]); // Reset new images on edit open
     setOpenEdit(true);
   };
 
@@ -74,7 +75,19 @@ const UserPostsLogic = ({ user, open, onClose }) => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setNewImages((prevImages) => [...prevImages, ...files]);
+    const combinedImages = [...newImages, ...files];
+
+    // Ensure a maximum of 3 images
+    if (combinedImages.length > 3) {
+      setSnackbarMessage("You can only upload up to 3 images.");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    setNewImages(combinedImages);
+
+    // Clear file input to allow selecting the same file again
+    e.target.value = null;
   };
 
   const handleRemoveImage = async (index) => {

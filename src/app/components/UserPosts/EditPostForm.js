@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-import ImagePreview from "./ImagePreview"; // New component for image preview and deletion
+import ImagePreview from "./ImagePreview"; // For preview and deletion
 
 const EditPostForm = ({
   editData,
@@ -24,7 +24,10 @@ const EditPostForm = ({
   handleEditSubmit,
   handleDeletePost,
   handleEditClose,
+  newImages, // Pass new images as a prop
 }) => {
+  const combinedImages = [...editData.images, ...newImages];
+
   return (
     <Box
       sx={{
@@ -155,18 +158,19 @@ const EditPostForm = ({
       {/* Image Upload and Preview */}
       <Box sx={{ textAlign: "left", marginBottom: 2 }}>
         <Typography variant="body2" color="textSecondary" gutterBottom>
-          Please upload 3 photos of the space
+          Please upload up to 3 photos of the space
         </Typography>
         <Button
           variant="contained"
           component="label"
           startIcon={<PhotoCameraIcon />}
           sx={{ width: "100%", marginBottom: 2 }}
+          disabled={combinedImages.length >= 3} // Disable if max images are reached
         >
           Choose Files
           <input type="file" hidden multiple onChange={handleImageChange} />
         </Button>
-        <ImagePreview images={editData.images} handleRemoveImage={handleRemoveImage} />
+        <ImagePreview images={combinedImages} handleRemoveImage={handleRemoveImage} />
       </Box>
 
       {/* Submit and Delete Buttons */}
