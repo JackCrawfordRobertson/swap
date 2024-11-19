@@ -1,3 +1,5 @@
+// src/components/UserPosts/ImagePreview.js
+
 import React from "react";
 import { Box, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";

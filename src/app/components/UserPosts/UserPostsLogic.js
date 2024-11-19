@@ -1,3 +1,5 @@
+// src/components/UserPosts/UserPostsLogic.js
+
 import React, { useState, useEffect } from "react";
 import {
   getUserPosts,
@@ -80,26 +82,8 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     }
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    console.log("Selected files for upload:", files);
-
-    const combinedImages = [...newImages, ...files];
-    console.log("Combined images:", combinedImages);
-
-    // Ensure a maximum of 3 images
-    if (combinedImages.length > 3) {
-      console.warn("Image limit exceeded. Only 3 images are allowed.");
-      setSnackbarMessage("You can only upload up to 3 images.");
-      setOpenSnackbar(true);
-      return;
-    }
-
-    setNewImages(combinedImages);
-    console.log("Updated newImages state:", combinedImages);
-
-    // Clear file input to allow selecting the same file again
-    e.target.value = null;
+  const handleImageChange = (e) => {
+    setNewImages(e.target.files);
   };
 
   const handleRemoveImage = async (index) => {
@@ -118,11 +102,15 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   const handleEditSubmit = async () => {
     console.log("Submitting edit with data:", editData);
     try {
-      let imageUrls = [...editData.images];
+      let imageUrls = editData.images;
 
       if (newImages.length > 0) {
+
         console.log("Uploading new images:", newImages);
         const imageUploadPromises = newImages.map((image) => uploadImage(image));
+
+        
+
         const newImageUrls = await Promise.all(imageUploadPromises);
         console.log("Uploaded new image URLs:", newImageUrls);
         imageUrls = [...imageUrls, ...newImageUrls];
@@ -135,7 +123,9 @@ const UserPostsLogic = ({ user, open, onClose }) => {
 
       setSnackbarMessage("Changes saved successfully!");
       setOpenSnackbar(true);
+
       setNewImages([]); // Clear new images after submission
+
       setOpenEdit(false);
       fetchPosts();
     } catch (error) {
