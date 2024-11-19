@@ -24,7 +24,7 @@ const UserPostsUI = ({
   handleEditClose,
   editData,
   handleEditChange,
-  handleImageChange,
+  handleImageUpload,
   handleRemoveImage,
   handleEditSubmit,
   handleDeletePost,
@@ -32,6 +32,14 @@ const UserPostsUI = ({
   snackbarMessage,
   handleCloseSnackbar,
 }) => {
+  console.log("Rendering UserPostsUI with props:", {
+    posts,
+    open,
+    openEdit,
+    editData,
+    newImages: editData.images,
+  });
+
   return (
     <>
       <Drawer anchor="right" open={open} onClose={onClose}>
@@ -77,7 +85,7 @@ const UserPostsUI = ({
         <EditPostForm
           editData={editData}
           handleEditChange={handleEditChange}
-          handleImageChange={handleImageChange}
+          handleImageUpload={handleImageUpload}
           handleRemoveImage={handleRemoveImage}
           handleEditSubmit={handleEditSubmit}
           handleDeletePost={handleDeletePost}

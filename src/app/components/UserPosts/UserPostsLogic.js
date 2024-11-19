@@ -30,6 +30,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
 
   useEffect(() => {
     if (user) {
+      console.log("Fetching posts for user:", user.uid);
       fetchPosts();
     }
   }, [user]);
@@ -37,6 +38,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   const fetchPosts = async () => {
     try {
       const userPosts = await getUserPosts(user.uid);
+      console.log("Fetched posts:", userPosts);
       setPosts(userPosts);
     } catch (error) {
       console.error("Error fetching user posts:", error);
@@ -44,6 +46,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   };
 
   const handleEditOpen = (post) => {
+    console.log("Opening edit for post:", post);
     setEditPost(post);
     setEditData({
       name: post.name,
@@ -61,83 +64,96 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     setOpenEdit(true);
   };
 
-  const handleEditClose = () => setOpenEdit(false);
+  const handleEditClose = () => {
+    console.log("Closing edit modal");
+    setOpenEdit(false);
+  };
 
   const handleEditChange = (e) => {
     if (e && e.target) {
       const { name, value } = e.target;
+      console.log(`Changing field ${name} to ${value}`);
       setEditData({ ...editData, [name]: value });
     } else {
-      // When we pass an object directly
+      console.log("Updating editData with object:", e);
       setEditData({ ...editData, ...e });
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    console.log("Selected files for upload:", files);
+
     const combinedImages = [...newImages, ...files];
+    console.log("Combined images:", combinedImages);
 
     // Ensure a maximum of 3 images
     if (combinedImages.length > 3) {
+      console.warn("Image limit exceeded. Only 3 images are allowed.");
       setSnackbarMessage("You can only upload up to 3 images.");
       setOpenSnackbar(true);
       return;
     }
 
     setNewImages(combinedImages);
+    console.log("Updated newImages state:", combinedImages);
 
     // Clear file input to allow selecting the same file again
     e.target.value = null;
   };
 
   const handleRemoveImage = async (index) => {
+    console.log("Attempting to remove image at index:", index);
     try {
       await deleteImage(editData.images[index]);
-      const newImages = Array.from(editData.images);
-      newImages.splice(index, 1);
-      setEditData({ ...editData, images: newImages });
+      const updatedImages = Array.from(editData.images);
+      updatedImages.splice(index, 1);
+      console.log("Updated images after removal:", updatedImages);
+      setEditData({ ...editData, images: updatedImages });
     } catch (error) {
-      console.error("Error removing image: ", error);
+      console.error("Error removing image:", error);
     }
   };
 
   const handleEditSubmit = async () => {
+    console.log("Submitting edit with data:", editData);
     try {
       let imageUrls = [...editData.images];
 
-      // Upload new images if any
       if (newImages.length > 0) {
+        console.log("Uploading new images:", newImages);
         const imageUploadPromises = newImages.map((image) => uploadImage(image));
         const newImageUrls = await Promise.all(imageUploadPromises);
+        console.log("Uploaded new image URLs:", newImageUrls);
         imageUrls = [...imageUrls, ...newImageUrls];
       }
 
-      const updatedData = {
-        ...editData,
-        images: imageUrls,
-      };
+      const updatedData = { ...editData, images: imageUrls };
+      console.log("Final data to update post:", updatedData);
 
       await updatePost(editPost.id, updatedData);
 
       setSnackbarMessage("Changes saved successfully!");
       setOpenSnackbar(true);
-
       setNewImages([]); // Clear new images after submission
       setOpenEdit(false);
       fetchPosts();
     } catch (error) {
-      console.error("Error updating post:", error);
+      console.error("Error during submit:", error);
       setSnackbarMessage("Failed to save changes");
       setOpenSnackbar(true);
     }
   };
 
   const handleDeletePost = async () => {
+    console.log("Deleting post with ID:", editPost.id);
     try {
       for (const imageUrl of editData.images) {
+        console.log("Deleting image:", imageUrl);
         await deleteImage(imageUrl);
       }
       await deletePost(editPost.id);
+      console.log("Post successfully deleted");
       setOpenEdit(false);
       setSnackbarMessage("Successfully deleted post");
       setOpenSnackbar(true);
@@ -147,7 +163,10 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     }
   };
 
-  const handleCloseSnackbar = () => setOpenSnackbar(false);
+  const handleCloseSnackbar = () => {
+    console.log("Closing snackbar");
+    setOpenSnackbar(false);
+  };
 
   return (
     <UserPostsUI
@@ -159,7 +178,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
       handleEditClose={handleEditClose}
       editData={editData}
       handleEditChange={handleEditChange}
-      handleImageChange={handleImageChange}
+      handleImageUpload={handleImageUpload}
       handleRemoveImage={handleRemoveImage}
       handleEditSubmit={handleEditSubmit}
       handleDeletePost={handleDeletePost}
