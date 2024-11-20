@@ -2,7 +2,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { signInWithEmail, registerWithEmail, resetPassword } from '@/utils/auth';
-import LogInUI from './LogInUI'; // Import the UI component
+import LogInUI from '@/app/components/LogIn/LogInUI'; // Import the UI component
 import { toast } from 'react-toastify';
 
 export default function LogInLogic() {
