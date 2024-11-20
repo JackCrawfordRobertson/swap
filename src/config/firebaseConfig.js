@@ -75,8 +75,8 @@ const initializeFirebase = async () => {
     // Set Firestore logging level
     const isProduction = process.env.NODE_ENV === "production";
     if (isProduction) {
-      setLogLevel("debug");
-      console.log("Firestore log level set to 'debug' for production.");
+      setLogLevel("error");
+      console.log("Firestore log level set to 'error' for production.");
     } else {
       setLogLevel("warn");
       console.log("Firestore log level set to 'warn' for development.");
