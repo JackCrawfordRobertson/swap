@@ -19,7 +19,7 @@ import {
 import { styled } from '@mui/material/styles';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ForgotPassword from '@/app/components/LogIn/ForgotPassword';
+import ForgotPassword from '@/app/components/logIn/ForgotPassword';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
