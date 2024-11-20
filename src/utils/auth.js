@@ -2,10 +2,9 @@ import initializeFirebase from "../config/firebaseConfig";
 import {
   signOut,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { doc, setDoc, addDoc, getDocs, collection, query, where } from "firebase/firestore";
+import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { createUserRegistrationTemplate, createAdminApprovalTemplate } from "@/utils/email/emailTemplate";
 import { sendEmail } from "@/utils/services/emailService";
 
