@@ -27,21 +27,16 @@ export default function SearchLogic() {
                         const cityName = await extractCityFromAddress(venue.location);
                         if (cityName) {
                             citySet.add(cityName);
-                            console.log("City added:", cityName);  // Log each city added
                         }
                     }
                     if (venue.eventType) {
                         eventTypeSet.add(venue.eventType);
-                        console.log("Event Type added:", venue.eventType);  // Log each event type added
                     }
                 }
 
                 setCities(Array.from(citySet));
                 setEventTypes(Array.from(eventTypeSet));
-                console.log("Cities:", Array.from(citySet));  // Log final cities array
-                console.log("Event Types:", Array.from(eventTypeSet));  // Log final event types array
             } catch (error) {
-                console.error("Error fetching venues:", error);
                 toast.error("Error fetching data. Please try again.");
             }
         };
@@ -51,7 +46,6 @@ export default function SearchLogic() {
 
     const extractCityFromAddress = async (address) => {
         if (!window.google || !window.google.maps) {
-            console.warn("Google Maps API not loaded yet.");
             return null;
         }
 
@@ -78,10 +72,8 @@ export default function SearchLogic() {
                         suffix = countryCode;
                     }
                     const cityWithSuffix = cityName && suffix ? `${cityName}, ${suffix}` : cityName;
-                    console.log("Formatted city with suffix:", cityWithSuffix);  // Log formatted city with suffix
                     resolve(cityWithSuffix);
                 } else {
-                    console.error("Geocoding failed:", status);
                     resolve(null);
                 }
             });
@@ -105,7 +97,6 @@ export default function SearchLogic() {
 
     const handleSearch = () => {
         if (user) {
-            console.log("Search triggered with:", { eventType, guests, location });
             const queryParams = new URLSearchParams({
                 eventType,
                 guests,

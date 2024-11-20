@@ -57,12 +57,14 @@ const VenueFormUI = ({
 }) => {
     return (
         <Box sx={{width: "100%", maxWidth: "600px", padding: 4}}>
-            <IconButton onClick={onClose} sx={{alignSelf: "flex-end"}}>
-                <CloseIcon />
-            </IconButton>
-            <Typography variant="h6" gutterBottom>
-                Add Venue
-            </Typography>
+           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Typography variant="h6" gutterBottom>
+                    Add Venue
+                </Typography>
+                <IconButton onClick={onClose}>
+                    <CloseIcon />
+                </IconButton>
+            </Box>
             <Box
                 component="form"
                 onSubmit={handleSubmit}
@@ -152,49 +154,45 @@ const VenueFormUI = ({
                     error={!!errors.bookingEmail}
                     helperText={errors.bookingEmail}
                 />
-
-                {/* New Upload Button with Instructions */}
-                <Box sx={{textAlign: "left", marginBottom: 2}}>
+ <Box sx={{ textAlign: "left" }}>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
-                        Please upload 3 photos of the space
+                        Please upload up to 3 photos of the space
                     </Typography>
                     <Button
-                        sx={{width: "100%"}}
+                        sx={{ width: "100%" }}
                         variant="contained"
                         component="label"
                         startIcon={<PhotoCameraIcon />}
-                        color="primary"
+                        disabled={images.length >= 3}
                     >
                         Choose Files
-                        <input type="file" hidden multiple onChange={handleImageChange} />
+                        <input type="file" hidden multiple accept="image/*" onChange={handleImageChange} />
                     </Button>
                 </Box>
-
-                <Box sx={{display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2}}>
+                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", marginTop: 2 }}>
                     {imagePreviews.map((src, index) => (
-                        <Box key={index} sx={{position: "relative", width: "100px", height: "100px"}}>
+                        <Box key={index} sx={{ position: "relative", width: "95px", height: "95px" }}>
                             <img
                                 src={src}
                                 alt={`preview-${index}`}
-                                style={{width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px"}}
+                                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
                             />
                             <IconButton
                                 onClick={() => handleRemoveImage(index)}
-                                sx={{position: "absolute", top: 0, right: 0}}
+                                sx={{ position: "absolute", top: 0, right: 0 }}
                             >
                                 <DeleteIcon />
                             </IconButton>
                         </Box>
                     ))}
                 </Box>
-                {loading && <LinearProgress sx={{marginTop: 2}} />}
+                {loading && <LinearProgress />}
                 {uploadComplete && (
-                    <Typography variant="body1" color="green" sx={{marginTop: 2}}>
+                    <Typography variant="body1" color="green">
                         Upload Complete
                     </Typography>
                 )}
-
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="contained">
                     Add Venue
                 </Button>
             </Box>

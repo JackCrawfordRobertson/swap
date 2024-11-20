@@ -18,7 +18,7 @@ import EventIcon from "@mui/icons-material/Event";
 import PeopleIcon from "@mui/icons-material/People";
 import PlaceIcon from "@mui/icons-material/Place";
 import SearchIcon from "@mui/icons-material/Search";
-import { useMediaQuery, useTheme } from "@mui/material";
+import {useMediaQuery, useTheme} from "@mui/material";
 
 const SearchUI = ({
     eventType,
@@ -58,7 +58,7 @@ const SearchUI = ({
                 {/* Event Type Dropdown */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
+                    sx={{flex: 1, width: isMobile ? "100%" : "auto"}}
                     onMouseDown={handleInteraction}
                     disabled={eventTypes.length === 0}
                 >
@@ -69,10 +69,10 @@ const SearchUI = ({
                         label="Event Type"
                         startAdornment={
                             <InputAdornment position="start">
-                                <EventIcon style={{ color: "gray" }} />
+                                <EventIcon style={{color: "gray"}} />
                             </InputAdornment>
                         }
-                        sx={{ color: "black" }}
+                        sx={{color: "black"}}
                     >
                         {eventTypes.map((type, index) => (
                             <MenuItem key={index} value={type}>
@@ -85,7 +85,7 @@ const SearchUI = ({
                 {/* Guests Input */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
+                    sx={{flex: 1, width: isMobile ? "100%" : "auto"}}
                     onMouseDown={handleInteraction}
                 >
                     <TextField
@@ -95,10 +95,10 @@ const SearchUI = ({
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <PeopleIcon style={{ color: "gray" }} />
+                                    <PeopleIcon style={{color: "gray"}} />
                                 </InputAdornment>
                             ),
-                            style: { color: "black" },
+                            style: {color: "black"},
                         }}
                         fullWidth
                     />
@@ -107,7 +107,7 @@ const SearchUI = ({
                 {/* Location Dropdown */}
                 <FormControl
                     variant="outlined"
-                    sx={{ flex: 1, width: isMobile ? "100%" : "auto" }}
+                    sx={{flex: 1, width: isMobile ? "100%" : "auto"}}
                     onMouseDown={handleInteraction}
                     disabled={cities.length === 0}
                 >
@@ -118,10 +118,10 @@ const SearchUI = ({
                         label="Location"
                         startAdornment={
                             <InputAdornment position="start">
-                                <PlaceIcon style={{ color: "gray" }} />
+                                <PlaceIcon style={{color: "gray"}} />
                             </InputAdornment>
                         }
-                        sx={{ color: "black" }}
+                        sx={{color: "black"}}
                     >
                         {cities.map((city, index) => (
                             <MenuItem key={index} value={city}>
@@ -151,22 +151,27 @@ const SearchUI = ({
 
             {/* Dialog */}
             <Dialog open={openDialog} onClose={handleDialogClose}>
-                <DialogTitle>
-                    <Typography variant="h4" sx={{ fontWeight: "bold", color: "#000" }}>
-                        Oops!
-                    </Typography>
-                </DialogTitle>
+                <DialogTitle sx={{fontWeight: "bold", color: "#000"}}>Oops!</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body1" sx={{ marginBottom: 2 }}>
-                        Looks like you're not logged in yet! But no worries, we’ve got you covered.
-                        Hit the "Login" button and make magic happen!
+                    <Typography variant="body1" sx={{marginBottom: 2}}>
+                        Looks like you're not logged in yet! But no worries, we’ve got you covered. Hit the "Login"
+                        button and make magic happen!
                     </Typography>
-                    <Typography variant="body2" sx={{ fontStyle: "italic", color: "#757575" }}>
+                    <Typography variant="body2" sx={{fontStyle: "italic", color: "#757575"}}>
                         (It only takes a few seconds, and we promise it’s worth it!)
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleDialogClose} color="primary">
+                    <Button
+                        onClick={handleDialogClose}
+                        sx={{
+                            backgroundColor: "#5fa7d9", // HEC Blue
+                            color: "#fff", // White text
+                            "&:hover": {
+                                backgroundColor: "#5fa7d9", // Darker shade for hover
+                            },
+                        }}
+                    >
                         Close
                     </Button>
                 </DialogActions>

@@ -10,8 +10,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import {useTheme} from "@mui/material/styles";
 import Link from "next/link";
 import Image from "next/image";
-import VenueFormLogic from "@/app/components/VenueForm/VenueFormLogic";
-import UserPostsLogic from "@/app/components/UserPosts/UserPostsLogic";
+import VenueFormLogic from "@/app/components/NavBar/AddVenue/VenueFormLogic";
+import UserPostsLogic from "@/app/components/NavBar/MyPosts/UserPostsLogic";
 
 const swapLogo = "/Swap.svg";
 const iceLogo = "/ICELogo.svg";

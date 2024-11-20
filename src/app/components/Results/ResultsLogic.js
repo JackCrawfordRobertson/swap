@@ -1,4 +1,3 @@
-// ResultsLogic.js
 "use client";
 
 import { useEffect, useState, useContext } from "react";
@@ -21,10 +20,7 @@ export const useResultsLogic = () => {
     useEffect(() => {
         const fetchVenues = async () => {
             try {
-                console.log("Fetching venues with parameters:", { eventType, guests, location, squareFootage });
-                
                 const allVenues = await getVenues();
-                console.log("All venues retrieved:", allVenues);
 
                 const filterVenueData = (venues) => {
                     let filtered = venues;
@@ -35,32 +31,19 @@ export const useResultsLogic = () => {
                     }
 
                     if (location) {
-    const [searchCity, searchCountry] = location.split(",").map((part) => part.trim().toLowerCase());
+                        const [searchCity, searchCountry] = location.split(",").map((part) => part.trim().toLowerCase());
 
-    filtered = filtered.filter((venue) => {
-        const venueLocationLower = venue.location.toLowerCase();
+                        filtered = filtered.filter((venue) => {
+                            const venueLocationLower = venue.location.toLowerCase();
 
-        // Debug logs to check the presence of city and country
-        console.log(`Checking venue "${venue.name}" with location "${venue.location}" against city "${searchCity}" and country "${searchCountry}"`);
+                            const cityMatch = venueLocationLower.includes(searchCity);
+                            const countryMatch =
+                                venueLocationLower.includes(searchCountry) ||
+                                (searchCountry === "us" && venueLocationLower.includes("united states"));
 
-        // Check if the city matches
-        const cityMatch = venueLocationLower.includes(searchCity);
-
-        // Check for flexible country match
-        const countryMatch = venueLocationLower.includes(searchCountry) || 
-                             (searchCountry === "us" && venueLocationLower.includes("united states"));
-
-        if (cityMatch && countryMatch) {
-            console.log(`Venue "${venue.name}" with location "${venue.location}" matches "${location}" and is included.`);
-            return true;
-        } else {
-            console.log(`Venue "${venue.name}" with location "${venue.location}" does not match "${location}" and is filtered out.`);
-            return false;
-        }
-    });
-
-    console.log(`Filtered by location (${location}):`, filtered);
-}
+                            return cityMatch && countryMatch;
+                        });
+                    }
 
                     if (guests) {
                         filtered = filtered.filter(
@@ -74,7 +57,6 @@ export const useResultsLogic = () => {
                 const filtered = filterVenueData(allVenues);
                 setFilteredVenues(filtered);
             } catch (error) {
-                console.error("Error fetching venues:", error);
                 toast.error("Failed to fetch venues.");
             }
         };
