@@ -5,6 +5,9 @@ import { createApprovalEmailTemplate } from "@/utils/email/emailTemplate";
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Exclude this route from prerendering
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
   const { db, auth } = await initializeAdmin(); // Dynamically initialize Firebase Admin
   const { searchParams } = new URL(request.url);
