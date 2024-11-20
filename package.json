@@ -2,12 +2,11 @@
   "name": "swap",
   "version": "0.1.0",
   "private": true,
-  "type": "module", 
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ./src --ext .js,.jsx --fix" 
+    "lint": "next lint"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.693.0",
