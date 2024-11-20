@@ -1,6 +1,4 @@
-// src/utils/auth.js
-
-import { auth, db } from "../config/firebaseConfig";
+import initializeFirebase from "../config/firebaseConfig";
 import {
   signOut,
   signInWithEmailAndPassword,
@@ -18,7 +16,7 @@ const allowedDomains = ["aviva.com", "ice-hub.biz", "ya-ya.co.uk", "jack-roberts
  * Determines whether the app is running in production or development
  * and sets the correct app URL based on the environment.
  */
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 const appUrl = isProduction
   ? process.env.NEXT_PUBLIC_APP_URL_PROD
   : process.env.NEXT_PUBLIC_APP_URL_DEV;
@@ -32,7 +30,7 @@ const isAllowedDomain = (email) => {
   const emailDomain = email.split("@")[1]?.trim().toLowerCase();
   return allowedDomains.includes(emailDomain);
 };
- 
+
 /**
  * Signs in a user with email and password.
  * @param {string} email - The user's email address.
@@ -42,20 +40,21 @@ const isAllowedDomain = (email) => {
  */
 const signInWithEmail = async (email, password) => {
   try {
+    const { auth } = await initializeFirebase(); // Dynamically load Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
     switch (error.code) {
-      case 'auth/user-not-found':
-        throw new Error('No user found with this email. Please check your email address or register.');
-      case 'auth/wrong-password':
-        throw new Error('Incorrect password. Please try again.');
-      case 'auth/invalid-email':
-        throw new Error('Invalid email address format.');
-      case 'auth/user-disabled':
-        throw new Error('This user has been disabled. Please contact support.');
+      case "auth/user-not-found":
+        throw new Error("No user found with this email. Please check your email address or register.");
+      case "auth/wrong-password":
+        throw new Error("Incorrect password. Please try again.");
+      case "auth/invalid-email":
+        throw new Error("Invalid email address format.");
+      case "auth/user-disabled":
+        throw new Error("This user has been disabled. Please contact support.");
       default:
-        throw new Error('An error occurred during sign-in. Please try again later.');
+        throw new Error("An error occurred during sign-in. Please try again later.");
     }
   }
 };
@@ -70,6 +69,7 @@ const signInWithEmail = async (email, password) => {
  */
 const registerWithEmail = async (email, password, username) => {
   try {
+    const { db } = await initializeFirebase(); // Dynamically load Firebase services
     email = email.trim().toLowerCase();
     username = username.trim();
 
@@ -137,6 +137,7 @@ const registerWithEmail = async (email, password, username) => {
  */
 const resetPassword = async (email) => {
   try {
+    const { auth } = await initializeFirebase(); // Dynamically load Firebase Auth
     email = email.trim().toLowerCase();
 
     // Validate email format
@@ -165,7 +166,6 @@ const resetPassword = async (email) => {
   }
 };
 
-
 /**
  * Logs out the currently authenticated user.
  * @returns {Promise<void>}
@@ -173,6 +173,7 @@ const resetPassword = async (email) => {
  */
 const logout = async () => {
   try {
+    const { auth } = await initializeFirebase(); // Dynamically load Firebase Auth
     await signOut(auth);
   } catch (error) {
     throw new Error("An error occurred while signing out. Please try again.");

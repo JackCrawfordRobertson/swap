@@ -26,7 +26,7 @@ exports.addOrUpdateCity = functions.firestore
         const response = await client.geocode({
           params: {
             address: data.location,
-            key: 'GOOGLE_MAPS_GEOCODE_API_KEY',
+            key: 'NEXT_PUBLIC_GOOGLE_MAPS_GEOCODE_API_KEY',
           },
         });
 
