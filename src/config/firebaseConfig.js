@@ -4,7 +4,6 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, setLogLevel } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
-import { getSecrets } from "./secretsManager";
 
 let firebaseInitialized = false;
 let firebaseServices = {};
@@ -42,46 +41,24 @@ const initializeFirebase = async () => {
     return firebaseServices;
   }
 
-  console.log("Fetching secrets for Firebase configuration...");
-  const isServer = typeof window === "undefined";
-  const isProduction = process.env.NODE_ENV === "production";
-  let firebaseConfig;
+  console.log("Initializing Firebase configuration...");
 
-  if (isServer) {
-    // Fetch secrets on the server side
-    const secrets = await getSecrets();
+  const firebaseConfig = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  };
 
-    firebaseConfig = {
-      apiKey: secrets.NEXT_PUBLIC_FIREBASE_API_KEY,
-      authDomain: secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      storageBucket: secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      appId: secrets.NEXT_PUBLIC_FIREBASE_APP_ID,
-      measurementId: secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-    };
-  } else {
-    // Use environment variables on the client side
-    firebaseConfig = {
-      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-      measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-    };
-  }
-
-  console.log(
-    `Firebase Config (${isProduction ? "Production" : "Development"}):`,
-    firebaseConfig
-  );
+  console.log("Firebase Config:", firebaseConfig);
 
   // Validate Firebase configuration
   if (!validateFirebaseConfig(firebaseConfig)) {
     throw new Error(
-      "Firebase configuration is invalid. Check your environment variables or secrets."
+      "Firebase configuration is invalid. Check your environment variables."
     );
   }
 
@@ -96,6 +73,7 @@ const initializeFirebase = async () => {
     const storage = getStorage(app);
 
     // Set Firestore logging level
+    const isProduction = process.env.NODE_ENV === "production";
     if (isProduction) {
       setLogLevel("debug");
       console.log("Firestore log level set to 'debug' for production.");
