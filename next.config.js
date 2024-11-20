@@ -15,9 +15,29 @@ const nextConfig = {
   },
   productionBrowserSourceMaps: false, // Disable source maps in production
   webpack: (config, { isServer }) => {
+    // Alias configuration for improved imports
     config.resolve.alias['@'] = path.resolve(__dirname, 'src');
     config.resolve.alias['node:buffer'] = require.resolve('buffer/');
     config.resolve.alias['node:stream'] = require.resolve('stream-browserify');
+
+    // Suppress warnings for missing source maps
+    config.ignoreWarnings = [
+      (warning) =>
+        warning.message.includes(
+          'Failed to load source map for react-toastify.esm.mjs'
+        ),
+    ];
+
+    // Ensure compatibility with serverless environments
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
     return config;
   },
 };

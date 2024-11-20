@@ -1,5 +1,3 @@
-// firebaseConfig.js
-
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, setLogLevel } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -37,11 +35,8 @@ const validateFirebaseConfig = (config) => {
  */
 const initializeFirebase = async () => {
   if (firebaseInitialized) {
-    console.log("Firebase already initialized. Returning cached services.");
     return firebaseServices;
   }
-
-  console.log("Initializing Firebase configuration...");
 
   const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -53,8 +48,6 @@ const initializeFirebase = async () => {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
   };
 
-  console.log("Firebase Config:", firebaseConfig);
-
   // Validate Firebase configuration
   if (!validateFirebaseConfig(firebaseConfig)) {
     throw new Error(
@@ -65,7 +58,6 @@ const initializeFirebase = async () => {
   try {
     // Initialize Firebase app
     const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    console.log("Firebase app initialized:", app.name);
 
     // Initialize Firebase services
     const db = getFirestore(app);
@@ -74,19 +66,11 @@ const initializeFirebase = async () => {
 
     // Set Firestore logging level
     const isProduction = process.env.NODE_ENV === "production";
-    if (isProduction) {
-      setLogLevel("error");
-      console.log("Firestore log level set to 'error' for production.");
-    } else {
-      setLogLevel("warn");
-      console.log("Firestore log level set to 'warn' for development.");
-    }
+    setLogLevel(isProduction ? "error" : "warn");
 
     // Cache Firebase services
     firebaseServices = { db, auth, storage, app };
     firebaseInitialized = true;
-
-    console.log("Firebase services initialized successfully.");
   } catch (error) {
     console.error("Error initializing Firebase:", error);
     throw error;
