@@ -1,5 +1,3 @@
-// src/components/UserPosts/UserPostsUI.js
-
 import React from "react";
 import {
   Box,
@@ -12,7 +10,6 @@ import {
   ListItemSecondaryAction,
   Snackbar,
   Modal,
-  Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
@@ -27,27 +24,23 @@ const UserPostsUI = ({
   handleEditClose,
   editData,
   handleEditChange,
-  handleImageUpload,
+  handleImageChange,
   handleRemoveImage,
   handleEditSubmit,
   handleDeletePost,
+  newImages,
   openSnackbar,
   snackbarMessage,
   handleCloseSnackbar,
 }) => {
-  console.log("Rendering UserPostsUI with props:", {
-    posts,
-    open,
-    openEdit,
-    editData,
-    newImages: editData.images,
-  });
-
   return (
     <>
       <Drawer anchor="right" open={open} onClose={onClose}>
         <Box sx={{ width: 400, padding: 2 }}>
-          <IconButton onClick={onClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+          <IconButton
+            onClick={onClose}
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
             <CloseIcon />
           </IconButton>
           <Typography variant="h6" gutterBottom>
@@ -55,7 +48,11 @@ const UserPostsUI = ({
           </Typography>
           <List>
             {posts.map((post) => (
-              <ListItem key={post.id} button onClick={() => handleEditOpen(post)}>
+              <ListItem
+                key={post.id}
+                button
+                onClick={() => handleEditOpen(post)}
+              >
                 {post.images.length > 0 && (
                   <img
                     src={post.images[0]}
@@ -74,7 +71,10 @@ const UserPostsUI = ({
                   secondary={`Location: ${post.location}, Capacity: ${post.capacity.seated} seated, ${post.capacity.standing} standing`}
                 />
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={() => handleEditOpen(post)}>
+                  <IconButton
+                    edge="end"
+                    onClick={() => handleEditOpen(post)}
+                  >
                     <EditIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
@@ -85,24 +85,34 @@ const UserPostsUI = ({
       </Drawer>
 
       <Modal open={openEdit} onClose={handleEditClose}>
-        <EditPostForm
-          editData={editData}
-          handleEditChange={handleEditChange}
-          handleImageUpload={handleImageUpload}
-          handleRemoveImage={handleRemoveImage}
-          handleEditSubmit={handleEditSubmit}
-          handleDeletePost={handleDeletePost}
-          handleEditClose={handleEditClose}
-        />
+        {/* Wrap EditPostForm in a div or Box */}
+        <Box>
+          <EditPostForm
+            editData={editData}
+            handleEditChange={handleEditChange}
+            handleImageChange={handleImageChange}
+            handleRemoveImage={handleRemoveImage}
+            handleEditSubmit={handleEditSubmit}
+            handleDeletePost={handleDeletePost}
+            handleEditClose={handleEditClose}
+            newImages={newImages}
+          />
+        </Box>
       </Modal>
 
+      {/* Snackbar for notifications */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
         action={
-          <IconButton size="small" aria-label="close" color="inherit" onClick={handleCloseSnackbar}>
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleCloseSnackbar}
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         }

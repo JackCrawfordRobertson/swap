@@ -69,6 +69,7 @@ const UserPostsLogic = ({ user, open, onClose }) => {
   const handleEditClose = () => {
     console.log("Closing edit modal");
     setOpenEdit(false);
+    setNewImages([]); // Reset new images on edit close
   };
 
   const handleEditChange = (e) => {
@@ -82,34 +83,52 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     }
   };
 
-  const handleImageUpload = (e) => {
-    setNewImages(e.target.files);
+  // Updated function to handle image selection
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setNewImages((prevImages) => [...prevImages, ...files]);
   };
 
+  // Updated function to handle image removal
   const handleRemoveImage = async (index) => {
     console.log("Attempting to remove image at index:", index);
-    try {
-      await deleteImage(editData.images[index]);
-      const updatedImages = Array.from(editData.images);
+    const existingImagesCount = editData.images.length;
+  
+    if (index < existingImagesCount) {
+      // Remove from existing images
+      const imageUrlToDelete = editData.images[index];
+      try {
+        await deleteImage(imageUrlToDelete);
+        console.log("Deleted image from storage:", imageUrlToDelete);
+      } catch (error) {
+        console.error("Error deleting image from storage:", error);
+      }
+  
+      const updatedImages = [...editData.images];
       updatedImages.splice(index, 1);
       console.log("Updated images after removal:", updatedImages);
       setEditData({ ...editData, images: updatedImages });
-    } catch (error) {
-      console.error("Error removing image:", error);
+    } else {
+      // Remove from new images
+      const newImageIndex = index - existingImagesCount;
+      const updatedNewImages = [...newImages];
+      updatedNewImages.splice(newImageIndex, 1);
+      setNewImages(updatedNewImages);
+      console.log("Updated newImages after removal:", updatedNewImages);
     }
   };
 
+  // Updated function to handle form submission
   const handleEditSubmit = async () => {
     console.log("Submitting edit with data:", editData);
     try {
       let imageUrls = editData.images;
 
       if (newImages.length > 0) {
-
         console.log("Uploading new images:", newImages);
-        const imageUploadPromises = newImages.map((image) => uploadImage(image));
-
-        
+        const imageUploadPromises = newImages.map((image) =>
+          uploadImage(image, user.uid)
+        );
 
         const newImageUrls = await Promise.all(imageUploadPromises);
         console.log("Uploaded new image URLs:", newImageUrls);
@@ -140,7 +159,11 @@ const UserPostsLogic = ({ user, open, onClose }) => {
     try {
       for (const imageUrl of editData.images) {
         console.log("Deleting image:", imageUrl);
-        await deleteImage(imageUrl);
+        try {
+          await deleteImage(imageUrl);
+        } catch (error) {
+          console.error("Error deleting image from storage:", error);
+        }
       }
       await deletePost(editPost.id);
       console.log("Post successfully deleted");
@@ -150,12 +173,15 @@ const UserPostsLogic = ({ user, open, onClose }) => {
       fetchPosts();
     } catch (error) {
       console.error("Error deleting post:", error);
+      setSnackbarMessage("Failed to delete post");
+      setOpenSnackbar(true);
     }
   };
 
   const handleCloseSnackbar = () => {
     console.log("Closing snackbar");
     setOpenSnackbar(false);
+    setSnackbarMessage("");
   };
 
   return (
@@ -168,10 +194,11 @@ const UserPostsLogic = ({ user, open, onClose }) => {
       handleEditClose={handleEditClose}
       editData={editData}
       handleEditChange={handleEditChange}
-      handleImageUpload={handleImageUpload}
+      handleImageChange={handleImageChange}
       handleRemoveImage={handleRemoveImage}
       handleEditSubmit={handleEditSubmit}
       handleDeletePost={handleDeletePost}
+      newImages={newImages}
       openSnackbar={openSnackbar}
       snackbarMessage={snackbarMessage}
       handleCloseSnackbar={handleCloseSnackbar}

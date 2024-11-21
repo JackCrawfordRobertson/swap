@@ -1,13 +1,45 @@
 // src/components/UserPosts/ImagePreview.js
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const ImagePreview = ({ images, handleRemoveImage }) => {
+  // State to hold the image previews
+  const [imagePreviews, setImagePreviews] = React.useState([]);
+
+  useEffect(() => {
+    const previews = images.map((image) => {
+      if (image instanceof File) {
+        // Create an object URL for the File object
+        return {
+          type: "file",
+          url: URL.createObjectURL(image),
+        };
+      } else {
+        // It's an existing image URL
+        return {
+          type: "url",
+          url: image,
+        };
+      }
+    });
+
+    setImagePreviews(previews);
+
+    // Cleanup function to revoke object URLs
+    return () => {
+      previews.forEach((preview) => {
+        if (preview.type === "file") {
+          URL.revokeObjectURL(preview.url);
+        }
+      });
+    };
+  }, [images]);
+
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap", marginTop: 2 }}>
-      {images.map((url, index) => (
+      {imagePreviews.map((image, index) => (
         <Box
           key={index}
           sx={{
@@ -19,7 +51,7 @@ const ImagePreview = ({ images, handleRemoveImage }) => {
           }}
         >
           <img
-            src={url}
+            src={image.url}
             alt={`img-${index}`}
             width="100%"
             height="100%"

@@ -43,12 +43,13 @@ export const getVenues = async (filters = {}) => {
   }
 };
 
-// Function to add a new venue
+// **Reverted addVenue function to its original state**
 export const addVenue = async (venue) => {
   try {
     const { db } = await getFirebaseServices();
     const docRef = await addDoc(collection(db, "venues"), venue);
     console.log("Document written with ID: ", docRef.id);
+    return docRef.id; // Return the new document ID
   } catch (error) {
     console.error("Error adding venue:", error);
     throw error;
@@ -72,7 +73,7 @@ export const updatePost = async (id, updatedData) => {
 export const uploadImage = async (file, userId) => {
   try {
     const { storage } = await getFirebaseServices();
-    const storageRef = ref(storage, `venues/${file.name}`);
+    const storageRef = ref(storage, `venues/${userId}/${Date.now()}_${file.name}`);
     const metadata = {
       customMetadata: {
         userId: userId, // Attach the user's UID to the image metadata
@@ -82,33 +83,27 @@ export const uploadImage = async (file, userId) => {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   } catch (error) {
-    console.error("Error uploading image: ", error);
+    console.error("Error uploading image:", error);
     throw error;
   }
 };
 
-// Function to re-upload existing images with metadata
-export const reuploadImagesWithMetadata = async (images, userId) => {
+// Function to upload multiple images and get their URLs (used in update functionality)
+export const uploadNewImages = async (files, userId) => {
   try {
-    const { storage } = await getFirebaseServices();
-    const reuploadedImages = [];
-    for (const image of images) {
-      const storageRef = ref(storage, `venues/${image.name}`);
-      const metadata = {
-        customMetadata: {
-          userId: userId, // Set the user's UID as metadata
-        },
-      };
-      await uploadBytes(storageRef, image, metadata);
-      const downloadURL = await getDownloadURL(storageRef);
-      reuploadedImages.push(downloadURL); // Store the new download URLs
+    if (!files || files.length === 0) {
+      return [];
     }
-    return reuploadedImages; // Return the new URLs for further use
+    const uploadPromises = files.map((file) => uploadImage(file, userId));
+    const imageUrls = await Promise.all(uploadPromises);
+    return imageUrls;
   } catch (error) {
-    console.error("Error re-uploading images: ", error);
+    console.error("Error uploading new images: ", error);
     throw error;
   }
 };
+
+// Other functions remain the same...
 
 // Function to get user's posts
 export const getUserPosts = async (userId) => {
@@ -147,29 +142,5 @@ export const deletePost = async (postId) => {
   } catch (error) {
     console.error("Error deleting post: ", error);
     throw error;
-  }
-};
-
-// Helper function to re-upload images with metadata and update post with new URLs
-export const updateImagesWithMetadata = async (post, userId) => {
-  try {
-    const newImageUrls = await reuploadImagesWithMetadata(post.images, userId);
-    await updatePost(post.id, { images: newImageUrls });
-    console.log("Post updated with new image URLs");
-  } catch (error) {
-    console.error("Error updating post with new image URLs: ", error);
-  }
-};
-
-// Function to update all posts of a user with re-uploaded images containing metadata
-export const updateAllUserPosts = async (user) => {
-  try {
-    const userPosts = await getUserPosts(user.uid);
-    for (const post of userPosts) {
-      await updateImagesWithMetadata(post, user.uid);
-    }
-    console.log("All user posts updated with new image metadata");
-  } catch (error) {
-    console.error("Error updating all user posts: ", error);
   }
 };
