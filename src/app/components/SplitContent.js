@@ -50,8 +50,7 @@ export default function SplitContent() {
                         width: isMobile ? "100%" : "80%", // Use ':' instead of '='
                     }}
                 >
-                    When budgets are tight and you still want your internal events to be special use SWAP. Get started
-                    by using button above or start searching venues today!
+                    When budgets are tight and you still want your internal events to be special use SWAP. Click the login button above to start searching for venues today!
                 </Typography>
             </Box>
             {!isMobile && (

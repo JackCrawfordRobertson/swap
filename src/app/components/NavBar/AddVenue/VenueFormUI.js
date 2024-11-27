@@ -87,7 +87,7 @@ const VenueFormUI = ({
                 </Box>
 
                 <FormControl fullWidth sx={{marginBottom: 2}}>
-                    <InputLabel>Event Type</InputLabel>
+                    <InputLabel>Event Layout</InputLabel>
                     <Select value={eventType} onChange={handleEventTypeChange} required>
                         <MenuItem value="Cabaret">Cabaret</MenuItem>
                         <MenuItem value="Theatre">Theatre</MenuItem>
