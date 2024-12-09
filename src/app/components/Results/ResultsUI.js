@@ -1,30 +1,16 @@
 import React from "react";
-import {
-    Box,
-    Typography,
-    Grid,
-    Card,
-    CardContent,
-    CardMedia,
-} from "@mui/material";
+import {Box, Typography, Grid, Card, CardContent, CardMedia} from "@mui/material";
 import NavigationLogic from "@/app/components/NavBar/NavigationLogic";
 import ResultsPopup from "./ResultsPopup";
 
-const ResultsUI = ({
-    user,
-    filteredVenues,
-    selectedVenue,
-    handleCardClick,
-    handleClose,
-    handleCopyEmail,
-}) => {
+const ResultsUI = ({user, filteredVenues, selectedVenue, handleCardClick, handleClose, handleCopyEmail}) => {
     return (
         <>
-            <Box sx={{ margin: "1em" }}>
+            <Box sx={{margin: "1em"}}>
                 <NavigationLogic user={user} />
             </Box>
 
-            <Box sx={{ paddingLeft: "1em", paddingRight: "1em", marginTop: "1em", height: '80vh' }}>
+            <Box sx={{paddingLeft: "1em", paddingRight: "1em", marginTop: "1em", height: "80vh"}}>
                 <Typography variant="h4" gutterBottom>
                     Search Results
                 </Typography>
@@ -37,7 +23,7 @@ const ResultsUI = ({
                                     sx={{
                                         cursor: "pointer",
                                         transition: "transform 0.3s",
-                                        "&:hover": { transform: "scale(1.02)" },
+                                        "&:hover": {transform: "scale(1.02)"},
                                         boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
                                         borderRadius: "8px",
                                     }}
@@ -56,27 +42,27 @@ const ResultsUI = ({
                                         />
                                     )}
                                     <CardContent>
-                                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                                        <Typography variant="h6" sx={{fontWeight: "bold"}}>
                                             {venue.name}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Location: {venue.city}
+                                           <b> Location: </b>{venue.location || "Location not available"}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Event Layout: {venue.eventType}
+                                           <b> Event Layout:</b> {venue.eventType}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Capacity: {venue.capacity.seated} seated
+                                           <b> Capacity: </b>{venue.capacity.seated} seated
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Square Footage: {venue.squareFootage} sq ft
+                                           <b>Square Footage:</b> {venue.squareFootage} sq ft
                                         </Typography>
                                     </CardContent>
                                 </Card>
                             </Grid>
                         ))
                     ) : (
-                        <Typography variant="body1" sx={{ margin: "2em" }}>
+                        <Typography variant="body1" sx={{margin: "2em"}}>
                             No venues found.
                         </Typography>
                     )}
