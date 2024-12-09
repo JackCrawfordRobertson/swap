@@ -62,7 +62,7 @@ const SearchUI = ({
                     onMouseDown={handleInteraction}
                     disabled={eventTypes.length === 0}
                 >
-                    <InputLabel>Event Type</InputLabel>
+                    <InputLabel>Event Layout</InputLabel>
                     <Select
                         value={eventType}
                         onChange={handleEventTypeChange} // Updated handler
