@@ -105,7 +105,7 @@ const EditPostForm = ({
               <MenuItem value="Theatre">Theatre</MenuItem>
               <MenuItem value="Boardroom">Boardroom</MenuItem>
               <MenuItem value="Banquet">Banquet</MenuItem>
-              <MenuItem value="Reception">Reception</MenuItem>
+              <MenuItem value="Reception (Standing)">Reception (Standing)</MenuItem>
               <MenuItem value="U-Shape">U-Shape</MenuItem>
               <MenuItem value="Classroom">Classroom</MenuItem>
             </Select>
