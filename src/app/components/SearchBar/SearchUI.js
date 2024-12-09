@@ -55,7 +55,7 @@ const SearchUI = ({
                     marginBottom: isMobile ? "0" : "4",
                 }}
             >
-                {/* Event Type Dropdown */}
+                {/* Event Layout Dropdown */}
                 <FormControl
                     variant="outlined"
                     sx={{flex: 1, width: isMobile ? "100%" : "auto"}}
@@ -66,7 +66,7 @@ const SearchUI = ({
                     <Select
                         value={eventType}
                         onChange={handleEventTypeChange} // Updated handler
-                        label="Event Type"
+                        label="Event Layout"
                         startAdornment={
                             <InputAdornment position="start">
                                 <EventIcon style={{color: "gray"}} />

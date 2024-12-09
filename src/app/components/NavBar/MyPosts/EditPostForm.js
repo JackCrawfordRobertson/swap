@@ -90,7 +90,7 @@ const EditPostForm = ({
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
-            <InputLabel shrink>Event Type</InputLabel>
+            <InputLabel shrink>Event Layout</InputLabel>
             <Select
               name="eventType"
               value={editData.eventType || ""}
@@ -99,7 +99,7 @@ const EditPostForm = ({
               displayEmpty
             >
               <MenuItem value="" disabled>
-                Select Event Type
+                Select Event Layout
               </MenuItem>
               <MenuItem value="Cabaret">Cabaret</MenuItem>
               <MenuItem value="Theatre">Theatre</MenuItem>
