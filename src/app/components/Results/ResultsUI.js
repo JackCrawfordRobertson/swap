@@ -63,7 +63,7 @@ const ResultsUI = ({
                                             Location: {venue.city}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            Event Type: {venue.eventType}
+                                            Event Layout: {venue.eventType}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Capacity: {venue.capacity.seated} seated
