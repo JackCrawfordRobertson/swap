@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  TextField,
   Typography,
   IconButton,
   Button,
@@ -12,10 +11,12 @@ import {
   FormControlLabel,
   Switch,
   Grid,
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import ImagePreview from "./ImagePreview"; // For preview and deletion
+import LocationInput from "../AddVenue/LocationInput"; // Import LocationInput component
 
 const EditPostForm = ({
   editData,
@@ -26,6 +27,7 @@ const EditPostForm = ({
   handleDeletePost,
   handleEditClose,
   newImages = [],
+  locationError, // Assuming error is passed as locationError
 }) => {
   // Combine existing images and new images for preview
   const combinedImages = [
@@ -78,14 +80,10 @@ const EditPostForm = ({
 
       <Grid container spacing={2} sx={{ marginBottom: 2 }}>
         <Grid item xs={12} sm={6}>
-          <TextField
-            name="location"
-            label="Location"
-            value={editData.location || ""}
-            onChange={(e) => handleEditChange({ location: e.target.value })}
-            fullWidth
-            required
-            sx={{ marginBottom: 2 }}
+          <LocationInput
+            location={editData.location || ""}
+            setLocation={(location) => handleEditChange({ location })}
+            error={locationError} // Pass the error to the LocationInput component
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -185,9 +183,8 @@ const EditPostForm = ({
         sx={{ marginY: 2 }}
       />
 
-
-     {/* Image Upload and Preview */}
-     <Box sx={{ textAlign: "left", marginBottom: 2 }}>
+      {/* Image Upload and Preview */}
+      <Box sx={{ textAlign: "left", marginBottom: 2 }}>
         <Typography variant="body2" color="textSecondary" gutterBottom>
           Please upload up to 3 photos of the space
         </Typography>
