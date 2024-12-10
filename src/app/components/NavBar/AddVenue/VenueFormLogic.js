@@ -79,6 +79,7 @@ const VenueFormLogic = ({ user, onClose }) => {
         setImagePreviews([]);
         setHasAVFacilities(false);
         setHasCatering({ onSite: false, external: false });
+        setErrors({});
     };
 
     const handleImageChange = (e) => {
@@ -139,6 +140,7 @@ const VenueFormLogic = ({ user, onClose }) => {
             hasCatering={hasCatering}
             setHasCatering={setHasCatering}
             errors={errors}
+            setErrors={setErrors} // Pass setErrors to VenueFormUI
             handleSubmit={handleSubmit}
             handleImageChange={handleImageChange}
             handleRemoveImage={handleRemoveImage}
