@@ -52,7 +52,7 @@ const LocationInput = ({ location, setLocation, error, setError }) => {
           setError("");
           setSuggestions([]);
         } else {
-          setError("Please select an adress that includes a city.");
+          setError("Please select an address that includes a city.");
         }
       } else {
         setError("Unable to validate the selected location. Please try again.");
