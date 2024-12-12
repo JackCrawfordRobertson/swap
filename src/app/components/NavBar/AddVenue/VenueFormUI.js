@@ -116,7 +116,7 @@ const VenueFormUI = ({
     </FormControl>
     {eventType && (
         <TextField
-            label={`Seated Capacity for ${eventType} Style`}
+            label={`Capacity for ${eventType} Style`}
             value={capacity.seated}
             onChange={(e) => handleCapacityChange(e, "seated")}
             fullWidth
