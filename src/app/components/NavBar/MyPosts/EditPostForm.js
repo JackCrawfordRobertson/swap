@@ -15,8 +15,8 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
-import ImagePreview from "./ImagePreview"; // For preview and deletion
-import LocationInput from "../AddVenue/LocationInput"; // Import LocationInput component
+import ImagePreview from "./ImagePreview";
+import LocationInput from "../AddVenue/LocationInput";
 
 const EditPostForm = ({
   editData,
@@ -27,8 +27,10 @@ const EditPostForm = ({
   handleDeletePost,
   handleEditClose,
   newImages = [],
-  locationError, // Assuming error is passed as locationError
 }) => {
+  // State for handling location errors
+  const [locationError, setLocationError] = React.useState("");
+
   // Combine existing images and new images for preview
   const combinedImages = [
     ...(Array.isArray(editData.images) ? editData.images : []),
@@ -38,17 +40,17 @@ const EditPostForm = ({
   return (
     <Box
       sx={{
-        position: "absolute", // Keep the popup in the middle of the screen
+        position: "absolute",
         top: "50%",
         left: "50%",
-        transform: "translate(-50%, -50%)", // Centre the popup
-        width: "90vw", // Set width to 90% of the viewport
-        height: "90vh", // Set height to 90% of the viewport
+        transform: "translate(-50%, -50%)",
+        width: "90vw",
+        height: "90vh",
         bgcolor: "background.paper",
         borderRadius: "8px",
         boxShadow: 24,
-        overflow: "auto", // Enable scrolling for content overflow
-        padding: { xs: 2, sm: 4 }, // Responsive padding
+        overflow: "auto",
+        padding: { xs: 2, sm: 4 },
       }}
     >
       <Box
@@ -68,7 +70,6 @@ const EditPostForm = ({
         </IconButton>
       </Box>
 
-      {/* Form Fields */}
       <TextField
         name="name"
         label="Venue Name"
@@ -83,7 +84,8 @@ const EditPostForm = ({
           <LocationInput
             location={editData.location || ""}
             setLocation={(location) => handleEditChange({ location })}
-            error={locationError} // Pass the error to the LocationInput component
+            error={locationError}
+            setError={setLocationError} // Pass setError to LocationInput
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -103,7 +105,9 @@ const EditPostForm = ({
               <MenuItem value="Theatre">Theatre</MenuItem>
               <MenuItem value="Boardroom">Boardroom</MenuItem>
               <MenuItem value="Banquet">Banquet</MenuItem>
-              <MenuItem value="Reception (Standing)">Reception (Standing)</MenuItem>
+              <MenuItem value="Reception (Standing)">
+                Reception (Standing)
+              </MenuItem>
               <MenuItem value="U-Shape">U-Shape</MenuItem>
               <MenuItem value="Classroom">Classroom</MenuItem>
             </Select>
@@ -111,7 +115,6 @@ const EditPostForm = ({
         </Grid>
       </Grid>
 
-      {/* Two-Column Grid for Seated Capacity and Square Footage */}
       <Grid container spacing={2} sx={{ marginBottom: 2 }}>
         <Grid item xs={12} sm={6}>
           <TextField
@@ -183,7 +186,6 @@ const EditPostForm = ({
         sx={{ marginY: 2 }}
       />
 
-      {/* Image Upload and Preview */}
       <Box sx={{ textAlign: "left", marginBottom: 2 }}>
         <Typography variant="body2" color="textSecondary" gutterBottom>
           Please upload up to 3 photos of the space
@@ -193,7 +195,7 @@ const EditPostForm = ({
           component="label"
           startIcon={<PhotoCameraIcon />}
           sx={{ width: "100%", marginBottom: 2 }}
-          disabled={combinedImages.length >= 3} // Disable if max images are reached
+          disabled={combinedImages.length >= 3}
         >
           Choose Files
           <input type="file" hidden multiple onChange={handleImageChange} />
@@ -204,7 +206,7 @@ const EditPostForm = ({
         />
       </Box>
 
-      <Grid container spacing={2} sx={{ marginBottom: 0 }}>
+      <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Button
             variant="contained"

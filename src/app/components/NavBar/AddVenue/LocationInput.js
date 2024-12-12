@@ -15,7 +15,7 @@ const LocationInput = ({ location, setLocation, error, setError }) => {
   const handleLocationChange = (e) => {
     const input = e.target.value;
     setLocation(input);
-    setError(""); // Clear any previous error
+    if (typeof setError === "function") setError("");
 
     if (autocompleteService && input) {
       autocompleteService.getPlacePredictions(
@@ -41,21 +41,23 @@ const LocationInput = ({ location, setLocation, error, setError }) => {
 
     geocoder.geocode({ address: suggestion.description }, (results, status) => {
       if (status === "OK" && results.length > 0) {
-        const addressComponents = results[0].address_components;
-
-        const hasCity = addressComponents.some((component) =>
+        const hasCity = results[0].address_components.some((component) =>
           component.types.includes("locality") || component.types.includes("postal_town")
         );
 
         if (hasCity) {
           setLocation(suggestion.description);
-          setError("");
+          if (typeof setError === "function") setError("");
           setSuggestions([]);
         } else {
-          setError("Please select an address that includes a city.");
+          if (typeof setError === "function") {
+            setError("Please select an address that includes a city.");
+          }
         }
       } else {
-        setError("Unable to validate the selected location. Please try again.");
+        if (typeof setError === "function") {
+          setError("Unable to validate the selected location. Please try again.");
+        }
       }
     });
   };
